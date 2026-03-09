@@ -1,36 +1,56 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { Card, Panel, Pill } from "../components/ui";
-import { useApp } from "../app/store";
-import { GAMES } from "../data/games";
+import React from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useApp } from '../app/store';
 
 export default function Search() {
-  const { state } = useApp();
-  const q = state.search.trim().toLowerCase();
-  const items = q ? GAMES.filter(g => g.title.toLowerCase().includes(q)) : GAMES;
+    // Достаем state и actions напрямую, как это сделано в Layout.tsx
+    const { state, actions } = useApp();
+    const navigate = useNavigate();
+    const location = useLocation();
 
-  return (
-    <div className="h-full flex flex-col gap-5">
-      <div className="text-sm text-white/65 font-semibold">Search results</div>
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const query = e.target.value;
 
-      <Panel className="p-6">
-        <div className="flex items-center justify-between">
-          <div className="text-xs text-white/45">Query</div>
-          <Pill className="text-xs text-white/70">{q || "—"}</Pill>
+        // 1. Обновляем глобальный стейт поиска через встроенный экшен
+        actions.setSearch(query);
+
+        // 2. Умный редирект: если мы начали писать, но мы не в магазине — кидаем в магазин!
+        // Но если мы очистили строку, остаемся где были.
+        if (query.trim() !== '' && location.pathname !== '/store') {
+            navigate('/store');
+        }
+    };
+
+    return (
+        <div className="relative w-full max-w-md group">
+            {/* Иконка лупы для красоты */}
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span className="text-white/40 group-focus-within:text-blue-400 transition-colors">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </span>
+            </div>
+
+            <input
+                type="text"
+                placeholder="Поиск игр (например, Cyberpunk)..."
+                value={state.search || ""}
+                onChange={handleSearchChange}
+                className="w-full bg-[#0a0f18]/60 border border-white/10 text-white placeholder-white/40 pl-10 pr-4 py-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all backdrop-blur-md shadow-[0_4px_15px_rgba(0,0,0,0.1)]"
+            />
+
+            {/* Кнопка крестика (очистить поиск), появляется только когда есть текст */}
+            {state.search && (
+                <button
+                    onClick={() => actions.setSearch("")}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-white/40 hover:text-white transition-colors"
+                >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            )}
         </div>
-
-        <div className="mt-4 grid grid-cols-3 gap-4">
-          {items.map(g => (
-            <Link key={g.id} to={"/game/" + g.id} className="block">
-              <Card className="p-4 hover:bg-white/[0.10] transition">
-                <div className="h-16 rounded-[14px] border border-white/10 bg-white/[0.06]" />
-                <div className="mt-3 text-sm text-white/80 font-semibold">{g.title}</div>
-                <div className="text-[11px] text-white/45">{g.genre}</div>
-              </Card>
-            </Link>
-          ))}
-        </div>
-      </Panel>
-    </div>
-  );
+    );
 }
