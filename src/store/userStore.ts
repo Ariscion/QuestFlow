@@ -8,8 +8,8 @@ export interface Game {
     steamPrice: string;
     epicPrice: string;
     purchasedAt?: string;
-    purchasedPrice?: string; // Добавили поле для сохранения цены покупки
-    purchasedStore?: string; // Добавили поле для сохранения платформы
+    purchasedPrice?: string;
+    purchasedStore?: string;
 }
 
 interface UserState {
@@ -25,36 +25,25 @@ interface UserState {
 export const useUserStore = create<UserState>()(
     persist(
         (set, get) => ({
-            // --- ДАННЫЕ ПРОФИЛЯ ---
             userLevel: 1,
             userXP: 0,
             xpToNextLevel: 1000,
-            balanceKZT: 15000, // Твои 15к тенге
+            balanceKZT: 15000, // Оставляем как виртуальные QF Coins на будущее
 
-            // --- БИБЛИОТЕКА ИГР ---
             library: [],
 
-            // --- МЕТОДЫ (ACTIONS) ---
+            // Метод теперь работает как "Синхронизация" игры после CPA-перехода
             buyGame: (gameData, purchasedPrice, storeName) => {
-                const { library, balanceKZT } = get();
+                const { library } = get();
 
-                // Проверка: есть ли игра в библиотеке
                 if (library.find(g => g.id === gameData.id)) {
-                    console.warn('Игра уже в библиотеке!');
+                    console.warn('Игра уже синхронизирована с библиотекой!');
                     return false;
                 }
 
-                // ИСПРАВЛЕНИЕ: Парсим ИМЕННО ТУ цену, по которой кликнул юзер
-                const priceValue = parseInt(purchasedPrice.replace(/\D/g, '') || '0', 10);
-
-                if (balanceKZT < priceValue) {
-                    alert('Недостаточно средств на балансе QuestFlow!');
-                    return false;
-                }
-
-                // Списываем деньги, добавляем игру с указанием магазина и цены
+                // БОЛЬШЕ НЕТ СПИСАНИЯ ДЕНЕГ! Мы просто добавляем игру и даем XP
                 set((state) => {
-                    const newXP = state.userXP + 150;
+                    const newXP = state.userXP + 150; // Даем много XP за "покупку" через нас
                     const isLevelUp = newXP >= state.xpToNextLevel;
 
                     return {
@@ -63,11 +52,11 @@ export const useUserStore = create<UserState>()(
                             {
                                 ...gameData,
                                 purchasedAt: new Date().toISOString(),
-                                purchasedPrice: purchasedPrice, // Сохраняем за сколько купили
-                                purchasedStore: storeName       // Сохраняем где купили
+                                purchasedPrice: purchasedPrice,
+                                purchasedStore: storeName
                             }
                         ],
-                        balanceKZT: state.balanceKZT - priceValue,
+                        // state.balanceKZT остается нетронутым!
                         userXP: isLevelUp ? (newXP - state.xpToNextLevel) : newXP,
                         userLevel: isLevelUp ? state.userLevel + 1 : state.userLevel,
                         xpToNextLevel: isLevelUp ? Math.floor(state.xpToNextLevel * 1.5) : state.xpToNextLevel

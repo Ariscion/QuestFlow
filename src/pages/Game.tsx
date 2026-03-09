@@ -1,141 +1,144 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button, Card, Panel, Pill, Skeleton } from "../components/ui";
-import { GAMES_DB } from "../data/database";
 import { useUserStore } from "../store/userStore";
+import { useAnalytics } from "../hooks/useAnalytics";
+import { STORE_NAMES } from "../services/cheapSharkApi";
+
+const USD_TO_KZT = 450;
 
 export default function Game() {
-  const { id } = useParams<{ id: string }>(); // Достаем ID из адресной строки
+  const { id } = useParams<{ id: string }>(); // Это теперь ID игры из CheapShark
   const nav = useNavigate();
+  const { trackEvent } = useAnalytics();
 
-  // Глобальный стейт
-  const balanceKZT = useUserStore((s) => s.balanceKZT);
   const buyGame = useUserStore((s) => s.buyGame);
   const library = useUserStore((s) => s.library);
 
-  // Локальный стейт для страницы
-  const [game, setGame] = useState<any>(null);
-  const [steamDetails, setSteamDetails] = useState<any>(null);
+  // Стейты для API
+  const [csGame, setCsGame] = useState<any>(null); // Данные от CheapShark
+  const [steamDetails, setSteamDetails] = useState<any>(null); // Данные от Steam
   const [loading, setLoading] = useState(true);
 
-  // Проверяем, куплена ли игра
   const isOwned = library.some(g => g.id === id);
 
   useEffect(() => {
-    // 1. Ищем игру в нашей локальной БД
-    const foundGame = GAMES_DB.find(g => g.id === id);
+    if (!id) return;
 
-    if (!foundGame) {
-      setLoading(false);
-      return;
-    }
+    let isMounted = true;
+    setLoading(true);
 
-    setGame(foundGame);
+    // 1. Идем в CheapShark за инфой об игре и ВСЕМИ скидками на неё
+    fetch(`https://www.cheapshark.com/api/1.0/games?id=${id}`)
+        .then(res => res.json())
+        .then(data => {
+          if (!isMounted) return;
+          setCsGame(data);
 
-    // 2. Если есть Steam App ID, тянем красивое описание и скрины из Steam API
-    if (foundGame.steamAppId) {
-      fetch(`/api/steam/appdetails?appids=${foundGame.steamAppId}&l=russian`)
-          .then(res => res.json())
-          .then(data => {
-            const details = data[foundGame.steamAppId!].data;
-            setSteamDetails(details);
-          })
-          .catch(err => console.error("Ошибка загрузки деталей Steam:", err))
-          .finally(() => setLoading(false));
-    } else {
-      setLoading(false); // Для Epic-эксклюзивов просто выключаем загрузку
-    }
+          // 2. Если есть Steam ID, тянем картинки и описание оттуда
+          if (data.info.steamAppID) {
+            fetch(`/api/steam/appdetails?appids=${data.info.steamAppID}&l=russian`)
+                .then(res => res.json())
+                .then(steamData => {
+                  if (isMounted && steamData[data.info.steamAppID]?.success) {
+                    setSteamDetails(steamData[data.info.steamAppID].data);
+                  }
+                })
+                .catch(err => console.error("Ошибка Steam API:", err));
+          }
+        })
+        .catch(err => console.error("Ошибка CheapShark API:", err))
+        .finally(() => {
+          if (isMounted) setLoading(false);
+        });
+
+    return () => { isMounted = false; };
   }, [id]);
 
-  const handleBuy = (priceLabel: string, storeName: string) => {
-    if (!game) return;
+  const handleCpaSync = (deal: any) => {
+    const storeName = STORE_NAMES[deal.storeID] || `Store #${deal.storeID}`;
+    const kztPrice = Math.round(parseFloat(deal.price) * USD_TO_KZT);
 
-    // Подготавливаем объект игры для библиотеки
-    const gameToBuy = {
-      id: game.id,
-      title: game.title,
-      image: game.image,
-      steamPrice: game.steamAppId ? "Куплено" : "Эксклюзив Epic",
-      epicPrice: game.epicPrice || "Эксклюзив Steam"
+    // 1. Синхронизируем игру в нашу Библиотеку (денег не берем)
+    const gameToSync = {
+      id: id!,
+      title: csGame.info.title,
+      image: csGame.info.thumb,
+      steamPrice: deal.price,
+      epicPrice: deal.retailPrice
     };
 
-    const success = buyGame(gameToBuy, priceLabel, storeName);
-    if (success) {
-      alert(`Успешно куплено в ${storeName}!`);
-    }
+    buyGame(gameToSync, `${kztPrice} ₸`, storeName);
+    trackEvent('CPA_REDIRECT_AND_SYNC', { game: csGame.info.title, store: storeName });
+
+    // 2. Формируем хитрую CPA-ссылку (CheapShark дает прямую рефералку!)
+    const storeUrl = `https://www.cheapshark.com/redirect?dealID=${deal.dealID}`;
+    window.open(storeUrl, '_blank');
   };
 
   if (loading) {
     return (
         <div className="h-full flex flex-col gap-4 p-6">
-          <Skeleton className="h-[300px] w-full rounded-[24px]" />
+          <Skeleton className="h-[380px] w-full rounded-[24px] opacity-10" />
           <div className="flex gap-4">
-            <Skeleton className="h-[200px] flex-1 rounded-[24px]" />
-            <Skeleton className="h-[200px] w-[300px] rounded-[24px]" />
+            <Skeleton className="h-[200px] flex-1 rounded-[24px] opacity-10" />
+            <Skeleton className="h-[300px] w-[340px] rounded-[24px] opacity-10" />
           </div>
         </div>
     );
   }
 
-  if (!game) {
+  if (!csGame || !csGame.info) {
     return (
         <div className="h-full flex flex-col items-center justify-center text-white/50">
           <div className="text-4xl mb-4">🕵️‍♂️</div>
           <h2 className="text-xl font-bold text-white/80">Игра не найдена</h2>
-          <p className="mb-6">Возможно, она была удалена из базы.</p>
-          <Button variant="soft" onClick={() => nav("/store")}>Вернуться в магазин</Button>
+          <Button variant="soft" className="mt-4" onClick={() => nav("/store")}>Вернуться в магазин</Button>
         </div>
     );
   }
 
-  // Обработка цен
-  const isSteamExclusive = !game.epicPrice;
-  const isEpicExclusive = !game.steamAppId;
-  const steamPrice = steamDetails?.price_overview?.final_formatted || (game.steamAppId ? "Нет в продаже" : "Эксклюзив Epic");
-  const epicPrice = game.epicPrice || "Эксклюзив Steam";
-
-  // Очищаем HTML-теги из описания Steam (Steam присылает строку с <br> и <strong>)
   const cleanDescription = steamDetails?.short_description
       ? steamDetails.short_description.replace(/<[^>]*>?/gm, '')
-      : "Захватывающее приключение, которое подарит вам незабываемые эмоции. Описание временно недоступно.";
+      : "Детальное описание доступно в выбранном магазине.";
 
   return (
       <div className="h-full flex flex-col overflow-y-auto overflow-x-hidden relative rounded-2xl">
-
-        {/* --- HERO СЕКЦИЯ (Огромный баннер) --- */}
+        {/* --- HERO СЕКЦИЯ --- */}
         <div className="relative w-full h-[380px] shrink-0">
-          {/* Фоновая картинка с градиентом */}
           <img
-              src={steamDetails?.background || game.image}
+              src={steamDetails?.background || csGame.info.thumb}
               alt="Background"
               className="absolute inset-0 w-full h-full object-cover"
           />
-          {/* Затемнение снизу, чтобы текст читался */}
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent" />
-          <div className="absolute inset-0 bg-black/20 backdrop-blur-[2px]" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent" />
 
-          {/* Контент поверх баннера */}
           <div className="absolute bottom-0 left-0 w-full p-8 flex items-end justify-between gap-6">
             <div className="flex-1">
               <Button variant="ghost" className="mb-4 text-white/50 hover:text-white" onClick={() => nav(-1)}>
                 ← Назад
               </Button>
-              <h1 className="text-5xl font-black text-white drop-shadow-xl">{game.title}</h1>
-              <div className="flex gap-3 mt-4">
+              <h1 className="text-5xl font-black text-white drop-shadow-xl">{csGame.info.title}</h1>
+              <div className="flex gap-3 mt-4 items-center">
                 {steamDetails?.genres?.slice(0, 3).map((g: any) => (
                     <Pill key={g.id} className="bg-white/10 text-white/80 border-white/20 backdrop-blur-md">
                       {g.description}
                     </Pill>
                 ))}
+                {csGame.cheapestPriceEver && (
+                    <Pill className="bg-red-500/20 text-red-400 border-red-500/30">
+                      Исторический минимум: ${csGame.cheapestPriceEver.price}
+                    </Pill>
+                )}
               </div>
             </div>
           </div>
         </div>
 
         {/* --- ОСНОВНОЙ КОНТЕНТ --- */}
-        <div className="p-8 flex gap-8 relative z-10 bg-slate-950 flex-1">
+        <div className="p-8 flex flex-col xl:flex-row gap-8 relative z-10 bg-slate-950 flex-1">
 
-          {/* Левая колонка: Описание и Скриншоты */}
+          {/* Левая колонка */}
           <div className="flex-1 flex flex-col gap-8">
             <Panel className="p-6 bg-white/[0.02] border-white/5">
               <h3 className="text-lg font-bold text-white/90 mb-3">Об игре</h3>
@@ -144,7 +147,6 @@ export default function Game() {
               </p>
             </Panel>
 
-            {/* Скриншоты (если есть от Steam) */}
             {steamDetails?.screenshots && (
                 <div>
                   <h3 className="text-lg font-bold text-white/90 mb-4">Скриншоты</h3>
@@ -154,7 +156,7 @@ export default function Game() {
                             key={shot.id}
                             src={shot.path_thumbnail}
                             alt="Screenshot"
-                            className="w-full rounded-xl border border-white/10 hover:scale-105 transition-transform cursor-pointer"
+                            className="w-full rounded-xl border border-white/10 hover:scale-105 transition-transform cursor-pointer shadow-lg"
                         />
                     ))}
                   </div>
@@ -162,62 +164,57 @@ export default function Game() {
             )}
           </div>
 
-          {/* Правая колонка: Блок покупки */}
-          <div className="w-[340px] shrink-0 flex flex-col gap-5">
-            <Panel className="p-6 bg-gradient-to-br from-indigo-900/20 to-blue-900/10 border-blue-500/20 sticky top-4">
-              <img
-                  src={game.image}
-                  alt="Cover"
-                  className="w-full rounded-xl shadow-2xl mb-6 border border-white/10"
-              />
+          {/* Правая колонка: БЛОК АГРЕГАТОРА (Магазины) */}
+          <div className="w-full xl:w-[400px] shrink-0 flex flex-col gap-5">
+            <Panel className="p-6 bg-gradient-to-br from-indigo-900/10 to-blue-900/5 border-blue-500/20 sticky top-4">
+              <h3 className="text-xl font-black text-white mb-4">Сравнение цен</h3>
 
               {isOwned ? (
-                  <div className="text-center p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
-                    <div className="text-2xl mb-2">✅</div>
-                    <div className="text-emerald-400 font-bold">Уже в библиотеке</div>
-                    <Button variant="primary" className="w-full mt-4 bg-emerald-600 hover:bg-emerald-500 border-none" onClick={() => nav("/library")}>
-                      Перейти к загрузке
+                  <div className="text-center p-6 bg-emerald-500/10 border border-emerald-500/20 rounded-xl mb-4">
+                    <div className="text-3xl mb-2">✅</div>
+                    <div className="text-emerald-400 font-bold mb-1">Синхронизировано</div>
+                    <div className="text-xs text-emerald-400/60 mb-4">Игра уже добавлена в вашу библиотеку QuestFlow</div>
+                    <Button variant="primary" className="w-full bg-emerald-600 hover:bg-emerald-500 border-none" onClick={() => nav("/library")}>
+                      Открыть библиотеку
                     </Button>
                   </div>
               ) : (
-                  <div className="flex flex-col gap-4">
-                    <div className="text-sm text-white/50 text-center">Выберите платформу для покупки:</div>
+                  <div className="flex flex-col gap-3">
+                    {/* Выводим все доступные магазины, где есть эта игра */}
+                    {csGame.deals.map((deal: any) => {
+                      const storeName = STORE_NAMES[deal.storeID] || `Store #${deal.storeID}`;
+                      const kztPrice = Math.round(parseFloat(deal.price) * USD_TO_KZT);
+                      const isDiscount = parseFloat(deal.savings) > 0;
 
-                    {/* Кнопка Steam */}
-                    <Card className={`p-4 flex justify-between items-center ${isEpicExclusive ? 'opacity-40 grayscale' : 'hover:bg-white/[0.1] border-white/20'}`}>
-                      <div>
-                        <div className="text-xs text-white/50">Steam</div>
-                        <div className="text-lg font-bold text-white">{steamPrice}</div>
-                      </div>
-                      <Button
-                          variant="primary"
-                          disabled={isEpicExclusive}
-                          onClick={() => handleBuy(steamPrice, 'Steam')}
-                      >
-                        Купить
-                      </Button>
-                    </Card>
-
-                    {/* Кнопка Epic Games */}
-                    <Card className={`p-4 flex justify-between items-center ${isSteamExclusive ? 'opacity-40 grayscale' : 'hover:bg-white/[0.1] border-white/20'}`}>
-                      <div>
-                        <div className="text-xs text-white/50">Epic Games</div>
-                        <div className="text-lg font-bold text-white">{epicPrice}</div>
-                      </div>
-                      <Button
-                          variant="soft"
-                          disabled={isSteamExclusive}
-                          onClick={() => handleBuy(epicPrice, 'Epic Games')}
-                      >
-                        Купить
-                      </Button>
-                    </Card>
-
-                    <div className="text-xs text-center text-white/40 mt-2">
-                      Ваш баланс: <span className="text-emerald-400 font-bold">{balanceKZT.toLocaleString()} ₸</span>
-                    </div>
+                      return (
+                          <Card key={deal.dealID} className="p-3 flex justify-between items-center bg-[#0a0f18]/80 hover:bg-white/[0.08] transition-colors border-white/10 group">
+                            <div>
+                              <div className="text-sm font-bold text-white/90">{storeName}</div>
+                              <div className="flex items-center gap-2 mt-1">
+                                {isDiscount && (
+                                    <span className="text-xs text-white/40 line-through">${deal.retailPrice}</span>
+                                )}
+                                <span className="text-lg font-black text-emerald-400">{kztPrice} ₸</span>
+                              </div>
+                            </div>
+                            <Button
+                                onClick={() => handleCpaSync(deal)}
+                                className="bg-white/10 hover:bg-blue-600 text-white border-none group-hover:shadow-[0_0_15px_rgba(37,99,235,0.5)] transition-all"
+                            >
+                              Перейти ↗
+                            </Button>
+                          </Card>
+                      );
+                    })}
                   </div>
               )}
+
+              <div className="mt-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl">
+                <div className="text-xs text-blue-300 font-medium flex gap-2 items-start">
+                  <span>ℹ️</span>
+                  <span>При переходе в магазин игра автоматически добавится в вашу локальную библиотеку QuestFlow для быстрого доступа.</span>
+                </div>
+              </div>
             </Panel>
           </div>
         </div>
