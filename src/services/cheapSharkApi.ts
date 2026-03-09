@@ -41,14 +41,10 @@ export const CheapSharkAPI = {
     searchGames: async (query: string): Promise<CheapSharkGame[]> => {
         if (!query.trim()) return [];
 
-        try {
-            const response = await fetch(`${BASE_URL}/games?title=${encodeURIComponent(query)}&limit=15`);
-            if (!response.ok) throw new Error('Network response was not ok');
-            return await response.json();
-        } catch (error) {
-            console.error("Ошибка поиска игр:", error);
-            return [];
-        }
+        // Убрали try-catch, чтобы ошибка летела прямо в хук и включала желтую плашку!
+        const response = await fetch(`${BASE_URL}/games?title=${encodeURIComponent(query)}&limit=15`);
+        if (!response.ok) throw new Error('Network response was not ok');
+        return await response.json();
     },
 
     /**
