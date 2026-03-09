@@ -3,68 +3,64 @@ import { Button, Card, Panel, Pill, Skeleton } from "../components/ui";
 import { useDeals } from "../hooks/useDeals";
 import { useUserStore } from "../store/userStore";
 import { useApp } from "../app/store";
-import { useAnalytics } from "../hooks/useAnalytics"; // <-- ПОДКЛЮЧИЛИ АНАЛИТИКУ
+import { useAnalytics } from "../hooks/useAnalytics";
 
 export default function Store() {
     const appContext = useApp();
     const searchQuery = appContext?.state?.search || "";
     const { deals, loading, apiStatus } = useDeals(searchQuery);
 
-    const balanceKZT = useUserStore((s) => s.balanceKZT);
-    const buyGame = useUserStore((s) => s.buyGame);
+    // Баланс нам тут больше не нужен, берем только функцию добавления опыта
     const addClickXP = useUserStore((s) => s.addClickXP);
 
-    // Инициализируем наш движок аналитики
+    // Движок аналитики
     const { trackEvent } = useAnalytics();
 
-    const handleActionClick = (deal: any, storeName: string, price: string) => {
-        // --- ВЕБ-АНАЛИТИКА: Фиксируем клик (считаем CTR) ---
-        trackEvent('CLICK_BUY_BUTTON', {
+    // НОВАЯ ЛОГИКА ПЕРЕХОДА
+    const handleActionClick = (deal: any) => {
+        // 1. Аналитика: фиксируем успешный уход юзера в магазин (наш KPI)
+        trackEvent('REDIRECT_TO_STORE', {
             game: deal.title,
-            targetStore: storeName,
-            price: price,
+            priceKZT: deal.bestPriceKZT,
             isFromCache: apiStatus !== "online"
         });
 
+        // 2. Геймификация: поощряем пользователя XP за то, что он ищет скидки через нас
         addClickXP();
-        const success = buyGame(deal, price, storeName);
-        if (success) {
-            trackEvent('PURCHASE_SUCCESS', { game: deal.title, store: storeName });
-            alert(`[QuestFlow Store]\nИгра ${deal.title} успешно приобретена!\nПлатформа: ${storeName}\nСписано: ${price}\nИгра добавлена в Библиотеку.`);
-        }
+
+        // 3. Формируем URL магазина
+        // Если у игры есть Steam ID, мы можем кинуть его прямо на страницу игры в Стим!
+        // Иначе - отправляем в поиск (в будущем можно будет добавить ссылки на EGS и другие магазины)
+        const storeUrl = deal.steamAppID
+            ? `https://store.steampowered.com/app/${deal.steamAppID}`
+            : `https://www.google.com/search?q=${encodeURIComponent(deal.title + " buy pc game")}`;
+
+        // 4. Открываем магазин в новой вкладке
+        window.open(storeUrl, '_blank');
     };
 
     return (
         <div className="h-full flex flex-col gap-5 overflow-hidden">
-            <div className="flex justify-between items-center shrink-0">
-                <div className="text-sm text-white/65 font-semibold">Live Deals Aggregator</div>
-
-                <div className="text-sm font-bold text-emerald-400 px-3 py-1 bg-emerald-400/10 rounded-full border border-emerald-400/20 shadow-[0_0_15px_rgba(52,211,153,0.15)]">
-                    Баланс: {balanceKZT?.toLocaleString('ru-RU') || 0} ₸
-                </div>
-            </div>
-
             <Panel className="p-6 flex-1 overflow-y-auto overflow-x-hidden relative bg-gradient-to-br from-indigo-950/20 via-black/40 to-blue-950/20">
                 <div className="flex flex-col gap-4 mb-6 relative z-10 shrink-0">
                     <div className="flex items-center justify-between">
                         <div className="text-sm text-white/75 font-semibold">
-                            {searchQuery ? `Результаты поиска: "${searchQuery}"` : "Сравнение цен (Steam Live vs EGS Cache)"}
+                            {searchQuery ? `Результаты поиска: "${searchQuery}"` : "Сравнение цен агрегатора (Global)"}
                         </div>
 
                         <div className="flex gap-2">
                             {apiStatus === "online" && <Pill className="text-xs text-green-400/80 bg-green-400/10 border-green-400/20">Live API: Online</Pill>}
                             {apiStatus === "cache" && <Pill className="text-xs text-yellow-400/80 bg-yellow-400/10 border-yellow-400/20">Saved Cache Active</Pill>}
-                            {apiStatus === "fallback" && <Pill className="text-xs text-orange-400/80 bg-orange-400/10 border-orange-400/20">Offline Defaults</Pill>}
+                            {apiStatus === "fallback" && <Pill className="text-xs text-orange-400/80 bg-orange-400/10 border-orange-400/20">Offline Mode</Pill>}
                         </div>
                     </div>
 
-                    {/* --- ЭТИКА В ЦИФРОВОМ МИРЕ: Прозрачность данных --- */}
                     {apiStatus !== "online" && (
-                        <div className="w-full p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-xl flex items-start gap-3">
-                            <div className="text-yellow-400 mt-0.5">⚠️</div>
+                        <div className="w-full p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-xl flex items-start gap-3 shadow-lg">
+                            <div className="text-yellow-400 mt-0.5 text-lg">⚠️</div>
                             <div>
-                                <div className="text-sm text-yellow-400 font-bold">Внимание: Данные из кэша</div>
-                                <div className="text-xs text-white/60 mt-1">
+                                <div className="text-sm text-yellow-400 font-bold tracking-wide">Внимание: Данные из кэша</div>
+                                <div className="text-xs text-white/60 mt-1 leading-relaxed">
                                     Соединение с серверами магазинов временно недоступно. Мы показываем последние сохраненные цены. Финальная стоимость при переходе в магазин может отличаться.
                                 </div>
                             </div>
@@ -83,7 +79,7 @@ export default function Store() {
                         deals.map((deal) => (
                             <div key={deal.id} className="relative group">
 
-                                {/* --- AMBIENT ПОДСВЕТКА (МЫЛЬНАЯ ОБЛОЖКА НА ФОНЕ) --- */}
+                                {/* AMBIENT ПОДСВЕТКА */}
                                 <div
                                     className="absolute -inset-1 rounded-3xl blur-2xl opacity-20 group-hover:opacity-60 transition duration-500 z-0"
                                     style={{
@@ -93,7 +89,7 @@ export default function Store() {
                                     }}
                                 />
 
-                                {/* --- САМА КАРТОЧКА --- */}
+                                {/* САМА КАРТОЧКА */}
                                 <Card className="relative z-10 p-4 flex flex-col sm:flex-row gap-5 items-center bg-[#0a0f18]/80 border border-white/5 hover:border-white/20 backdrop-blur-xl transition-all">
 
                                     {/* ОБЛОЖКА */}
@@ -103,8 +99,7 @@ export default function Store() {
                                             alt={deal.title}
                                             className="w-full h-full object-cover object-center transform group-hover:scale-105 transition-transform duration-500"
                                             onError={(e) => {
-                                                e.currentTarget.onerror = null; // Убиваем бесконечный цикл!
-                                                // Используем SVG-заглушку прямо в коде (не требует интернета)
+                                                e.currentTarget.onerror = null;
                                                 e.currentTarget.src = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='200' viewBox='0 0 400 200'%3E%3Crect width='400' height='200' fill='%230f172a'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='16' fill='%2364748b'%3EOffline%3C/text%3E%3C/svg%3E";
                                             }}
                                         />
@@ -121,13 +116,15 @@ export default function Store() {
                                         </p>
                                     </div>
 
-                                    {/* КНОПКА */}
+                                    {/* НОВАЯ КНОПКА ПЕРЕХОДА В МАГАЗИН */}
                                     <div className="flex gap-3 w-full sm:w-auto shrink-0 z-10">
                                         <Button
-                                            onClick={() => handleActionClick(deal, "Лучшая цена", `${deal.bestPriceKZT} ₸`)}
+                                            onClick={() => handleActionClick(deal)}
                                             className="w-full sm:w-auto flex flex-col items-center py-2 px-6 bg-gradient-to-r from-blue-600/80 to-indigo-600/80 hover:from-blue-500 hover:to-indigo-500 text-white border border-white/10 shadow-[0_0_15px_rgba(59,130,246,0.3)] group-hover:shadow-[0_0_25px_rgba(59,130,246,0.6)] backdrop-blur-md transition-all rounded-xl"
                                         >
-                                            <span className="text-[10px] uppercase tracking-wider opacity-70 mb-0.5">Лучшая цена</span>
+                                            <span className="text-[10px] uppercase tracking-wider opacity-70 mb-0.5 flex items-center gap-1">
+                                                Перейти в магазин <span className="text-xs ml-1">↗</span>
+                                            </span>
                                             <span className="text-lg font-black">{deal.bestPriceKZT > 0 ? `${deal.bestPriceKZT} ₸` : 'FREE'}</span>
                                         </Button>
                                     </div>
