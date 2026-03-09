@@ -102,7 +102,11 @@ export default function Store() {
                                             src={deal.thumb}
                                             alt={deal.title}
                                             className="w-full h-full object-cover object-center transform group-hover:scale-105 transition-transform duration-500"
-                                            onError={(e) => { e.currentTarget.src = 'https://placehold.co/400x200/1a1a2e/ffffff?text=No+Image' }}
+                                            onError={(e) => {
+                                                e.currentTarget.onerror = null; // Убиваем бесконечный цикл!
+                                                // Используем SVG-заглушку прямо в коде (не требует интернета)
+                                                e.currentTarget.src = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='200' viewBox='0 0 400 200'%3E%3Crect width='400' height='200' fill='%230f172a'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='16' fill='%2364748b'%3EOffline%3C/text%3E%3C/svg%3E";
+                                            }}
                                         />
                                     </div>
 
