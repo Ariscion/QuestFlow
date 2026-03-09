@@ -1,115 +1,80 @@
 import { useState, useEffect } from 'react';
-import { GAMES_DB, } from '../data/database';
+import { CheapSharkAPI, type CheapSharkGame } from '../services/cheapSharkApi';
 
-const CACHE_KEY = "qf_steam_cache_v2";
+// Интерфейс, который ожидает наш UI
+export interface AppDeal {
+    id: string;
+    title: string;
+    thumb: string;
+    steamAppID: string | null;
+    bestPriceKZT: number; // Лучшая цена в тенге
+    bestPriceUSD: string; // Оригинальная цена
+}
 
-export function useDeals(searchQuery: string = "") {
-    const [deals, setDeals] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
+// Грубый курс для конвертации
+const USD_TO_KZT = 450;
+
+export function useDeals(searchQuery: string) {
+    const [deals, setDeals] = useState<AppDeal[]>([]);
+    const [loading, setLoading] = useState<boolean>(false);
     const [apiStatus, setApiStatus] = useState<"online" | "cache" | "fallback">("online");
 
-    async function fetchData() {
-        setLoading(true);
-        try {
-            if (!navigator.onLine) throw new Error("Нет интернета");
-
-            // 1. Фильтруем базу локально по поиску
-            const filteredGames = GAMES_DB.filter(game =>
-                game.title.toLowerCase().includes(searchQuery.toLowerCase())
-            );
-
-            // 2. Достаем ID только тех игр, которые есть в Steam
-            const steamGames = filteredGames.filter(g => g.steamAppId !== null);
-
-            // 3. Делаем запросы в Steam
-            const steamPromises = steamGames.map(game =>
-                fetch(`/api/steam/appdetails?appids=${game.steamAppId}&cc=kz`, { cache: 'no-store' })
-                    .then(res => {
-                        if (!res.ok) throw new Error(`Steam HTTP: ${res.status}`);
-                        return res.json();
-                    })
-            );
-
-            const steamResults = await Promise.all(steamPromises);
-
-            // 4. Собираем финальный массив (склеиваем Steam данные + Epic цены из локальной БД)
-            const combinedDeals = filteredGames.map((localGame) => {
-                let steamPriceLabel = "Нет цены";
-                let hasSteam = false;
-
-                if (localGame.steamAppId) {
-                    // Ищем ответ от Steam для этой игры
-                    const steamData = steamResults.find(res => res[localGame.steamAppId!]);
-                    const gameData = steamData?.[localGame.steamAppId!]?.data;
-
-                    if (gameData) {
-                        hasSteam = true;
-                        // Если игра бесплатная (как CS2)
-                        if (gameData.is_free) {
-                            steamPriceLabel = "Бесплатно";
-                        } else {
-                            steamPriceLabel = gameData.price_overview?.final_formatted || "Нет цены";
-                        }
-                        // Можно обновлять картинку из стима, но мы оставим из БД для скорости
-                    }
-                }
-
-                return {
-                    id: localGame.id,
-                    title: localGame.title,
-                    image: localGame.image,
-                    steamPrice: localGame.steamAppId === null ? "Эксклюзив Epic" : steamPriceLabel,
-                    epicPrice: localGame.epicPrice === null ? "Эксклюзив Steam" : localGame.epicPrice,
-                    isSteamExclusive: localGame.epicPrice === null,
-                    isEpicExclusive: localGame.steamAppId === null
-                };
-            });
-
-            if (combinedDeals.length === 0 && filteredGames.length > 0) throw new Error("Нет данных от Steam");
-
-            localStorage.setItem(CACHE_KEY, JSON.stringify(combinedDeals));
-            setDeals(combinedDeals);
-            setApiStatus("online");
-        } catch (error) {
-            console.warn("Live API Error! Грузим кэш...", error);
-            loadFromCache(searchQuery);
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    function loadFromCache(query: string) {
-        const cachedData = localStorage.getItem(CACHE_KEY);
-        if (cachedData) {
-            const parsed = JSON.parse(cachedData);
-            // Фильтруем кэш по поиску
-            const filtered = parsed.filter((g: any) => g.title.toLowerCase().includes(query.toLowerCase()));
-            setDeals(filtered);
-            setApiStatus("cache");
-        } else {
-            // Если совсем беда, отдаем БД как fallback
-            const filtered = GAMES_DB.filter(g => g.title.toLowerCase().includes(query.toLowerCase()));
-            const fallback = filtered.map(g => ({
-                id: g.id,
-                title: g.title,
-                image: g.image,
-                steamPrice: "Offline",
-                epicPrice: g.epicPrice || "N/A"
-            }));
-            setDeals(fallback);
-            setApiStatus("fallback");
-        }
-    }
-
-    // Перезапускаем фетч, если изменился запрос поиска
     useEffect(() => {
-        // Добавляем debounce (задержку), чтобы не спамить API при каждом нажатии клавиши
-        const timeoutId = setTimeout(() => {
-            fetchData();
-        }, 400);
+        // Если поиск пустой, пока не ищем (или можно вывести дефолтные хиты)
+        if (!searchQuery) {
+            setDeals([]);
+            return;
+        }
 
-        return () => clearTimeout(timeoutId);
+        let isMounted = true; // Защита от race conditions в React
+
+        const fetchLiveDeals = async () => {
+            setLoading(true);
+            setApiStatus("online");
+
+            try {
+                // Идем в РЕАЛЬНЫЙ интернет через наш сервис!
+                const results: CheapSharkGame[] = await CheapSharkAPI.searchGames(searchQuery);
+
+                if (isMounted) {
+                    // Маппим данные из чужого API в удобный для нашего UI формат
+                    const formattedDeals: AppDeal[] = results.map(game => {
+                        const usdPrice = parseFloat(game.cheapest);
+                        const kztPrice = Math.round(usdPrice * USD_TO_KZT);
+
+                        return {
+                            id: game.gameID,
+                            title: game.external,
+                            thumb: game.thumb,
+                            steamAppID: game.steamAppID,
+                            bestPriceUSD: game.cheapest,
+                            bestPriceKZT: kztPrice
+                        };
+                    });
+
+                    setDeals(formattedDeals);
+                }
+            } catch (error) {
+                console.error("API упал, включаем фоллбэк:", error);
+                if (isMounted) {
+                    setApiStatus("fallback"); // Этика: честно говорим, что данные отвалились
+                    setDeals([]); // Тут можно подгрузить старый кэш из localStorage
+                }
+            } finally {
+                if (isMounted) setLoading(false);
+            }
+        };
+
+        // Дебаунс (чтобы не спамить API на каждую букву)
+        const delayDebounceFn = setTimeout(() => {
+            fetchLiveDeals();
+        }, 500);
+
+        return () => {
+            clearTimeout(delayDebounceFn);
+            isMounted = false;
+        };
     }, [searchQuery]);
 
-    return { deals, loading, apiStatus, refetch: fetchData };
+    return { deals, loading, apiStatus };
 }

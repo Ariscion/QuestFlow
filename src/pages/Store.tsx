@@ -74,85 +74,52 @@ export default function Store() {
 
                 <div className="mt-4 grid grid-cols-1 gap-6 relative z-10">
                     {loading ? (
-                        <div className="space-y-4">
-                            <Skeleton className="h-[140px] w-full rounded-[20px]" />
-                            <Skeleton className="h-[140px] w-full rounded-[20px]" />
+                        <div className="flex flex-col gap-4">
+                            <Skeleton className="h-28 w-full rounded-2xl opacity-10" />
+                            <Skeleton className="h-28 w-full rounded-2xl opacity-10" />
+                            <Skeleton className="h-28 w-full rounded-2xl opacity-10" />
                         </div>
-                    ) : !deals || deals.length === 0 ? (
-                        <div className="text-center py-10 text-white/50">
-                            По запросу "{searchQuery}" ничего не найдено.
-                        </div>
-                    ) : (
-                        deals.map((deal) => {
-                            // БРОНЯ: Гарантируем, что цены всегда строки, даже если пришел кривой объект
-                            const steamPriceStr = deal?.steamPrice || "Нет цены";
-                            const epicPriceStr = deal?.epicPrice || "Нет цены";
-                            const title = deal?.title || "Неизвестная игра";
-                            const image = deal?.image || "";
+                    ) : deals.length > 0 ? (
+                        deals.map((deal) => (
+                            <div key={deal.id} className="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col sm:flex-row gap-5 items-center hover:bg-white/10 transition-colors backdrop-blur-sm">
 
-                            // Флаги блокировки кнопок
-                            const isSteamDisabled = steamPriceStr.includes("Эксклюзив");
-                            const isEpicDisabled = epicPriceStr.includes("Эксклюзив");
-
-                            // Математика
-                            const steamVal = isSteamDisabled ? Infinity : parseInt(steamPriceStr.replace(/\D/g, '') || '0', 10);
-                            const epicVal = isEpicDisabled ? Infinity : parseInt(epicPriceStr.replace(/\D/g, '') || '0', 10);
-                            const bestDeal = steamVal < epicVal ? 'steam' : (epicVal < steamVal ? 'epic' : 'both');
-
-                            return (
-                                <div key={deal?.id || Math.random()} className="relative group">
+                                {/* 1. ОБЛОЖКА ИЗ API CHEAPSHARK */}
+                                <div className="w-full sm:w-40 h-24 rounded-xl overflow-hidden shrink-0 bg-black/50 shadow-lg">
                                     <img
-                                        src={image}
-                                        alt="Glow backdrop"
-                                        className="absolute inset-0 w-full h-full object-cover rounded-[20px] blur-[60px] opacity-[0.25] group-hover:blur-[50px] group-hover:opacity-[0.4] transition-all duration-500 z-0 pointer-events-none"
+                                        src={deal.thumb}
+                                        alt={deal.title}
+                                        className="w-full h-full object-cover object-center"
+                                        onError={(e) => { e.currentTarget.src = 'https://placehold.co/400x200/1a1a2e/ffffff?text=No+Image' }}
                                     />
-
-                                    <Card className="p-5 flex items-center gap-6 hover:bg-white/[0.12] transition-all duration-300 rounded-[20px] border border-white/10 relative z-10 bg-black/40 backdrop-blur-sm">
-                                        <div className="relative shrink-0">
-                                            <img
-                                                src={image}
-                                                alt={title}
-                                                className="w-[200px] h-auto rounded-[14px] shadow-2xl object-cover border-2 border-white/5 relative z-10"
-                                            />
-                                            <div className="absolute inset-2 bg-white/20 blur-3xl z-0" />
-                                        </div>
-
-                                        <div className="flex-1 px-2">
-                                            <div className="text-2xl text-white font-bold tracking-tight">{title}</div>
-                                            <div className="text-xs text-white/45 mt-1.5 uppercase tracking-wider font-semibold">Официальные данные Live-API</div>
-                                        </div>
-
-                                        {/* Карточка Steam */}
-                                        <div className={`flex flex-col items-center gap-2.5 p-4 rounded-2xl min-w-[130px] border transition-all duration-300 ${isSteamDisabled ? 'opacity-40 grayscale' : bestDeal === 'steam' || bestDeal === 'both' ? 'bg-white/[0.08] border-white/20 shadow-[0_0_20px_rgba(255,255,255,0.06)] scale-[1.03]' : 'bg-white/[0.02] border-white/5 opacity-70'}`}>
-                                            <div className="text-xs tracking-wide text-white/60 font-medium">Steam</div>
-                                            <div className="text-lg font-extrabold text-white text-center">{steamPriceStr}</div>
-                                            <Button
-                                                variant={bestDeal === 'steam' || bestDeal === 'both' ? 'primary' : 'soft'}
-                                                onClick={() => !isSteamDisabled && handleActionClick(deal, 'Steam', steamPriceStr)}
-                                                className="w-full"
-                                                disabled={isSteamDisabled}
-                                            >
-                                                {isSteamDisabled ? "Недоступно" : "Купить"}
-                                            </Button>
-                                        </div>
-
-                                        {/* Карточка Epic Games */}
-                                        <div className={`flex flex-col items-center gap-2.5 p-4 rounded-2xl min-w-[130px] border transition-all duration-300 ${isEpicDisabled ? 'opacity-40 grayscale' : bestDeal === 'epic' || bestDeal === 'both' ? 'bg-white/[0.08] border-white/20 shadow-[0_0_20px_rgba(255,255,255,0.06)] scale-[1.03]' : 'bg-white/[0.02] border-white/5 opacity-70'}`}>
-                                            <div className="text-xs tracking-wide text-white/60 font-medium">Epic Games</div>
-                                            <div className="text-lg font-extrabold text-white text-center">{epicPriceStr}</div>
-                                            <Button
-                                                variant={bestDeal === 'epic' || bestDeal === 'both' ? 'primary' : 'soft'}
-                                                onClick={() => !isEpicDisabled && handleActionClick(deal, 'Epic Games', epicPriceStr)}
-                                                className="w-full"
-                                                disabled={isEpicDisabled}
-                                            >
-                                                {isEpicDisabled ? "Недоступно" : "Купить"}
-                                            </Button>
-                                        </div>
-                                    </Card>
                                 </div>
-                            );
-                        })
+
+                                {/* 2. ИНФО */}
+                                <div className="flex-1 text-center sm:text-left w-full">
+                                    <h3 className="text-xl font-bold text-white leading-tight">{deal.title}</h3>
+                                    <p className="text-xs text-emerald-400 mt-1 uppercase tracking-wide font-semibold">
+                                        Оригинал: ${deal.bestPriceUSD}
+                                    </p>
+                                    <p className="text-[10px] text-white/40 mt-1">
+                                        ID: {deal.id} {deal.steamAppID && `| Steam ID: ${deal.steamAppID}`}
+                                    </p>
+                                </div>
+
+                                {/* 3. ЦЕНА В ТЕНГЕ И КНОПКА */}
+                                <div className="flex gap-3 w-full sm:w-auto shrink-0">
+                                    <Button
+                                        onClick={() => handleActionClick(deal, "Лучшая цена", `${deal.bestPriceKZT} ₸`)}
+                                        className="w-full sm:w-auto flex flex-col items-center py-2 px-6 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white border-none"
+                                    >
+                                        <span className="text-[10px] uppercase tracking-wider opacity-80 mb-0.5">Лучшая цена</span>
+                                        <span className="text-lg font-black">{deal.bestPriceKZT > 0 ? `${deal.bestPriceKZT} ₸` : 'FREE'}</span>
+                                    </Button>
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <div className="text-center p-12 text-white/50 border border-white/5 rounded-2xl bg-black/20">
+                            {searchQuery ? "Игры не найдены. Попробуйте другой запрос." : "Введите название игры в поиск выше."}
+                        </div>
                     )}
                 </div>
             </Panel>
