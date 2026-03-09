@@ -13,7 +13,7 @@ export interface AppDeal {
 
 const USD_TO_KZT = 450;
 // Ключ для нашего хранилища в браузере
-const CACHE_KEY = 'qf_last_search_cache';
+const CACHE_KEY = 'qf_search_cache_v2';
 
 export function useDeals(searchQuery: string) {
     const [deals, setDeals] = useState<AppDeal[]>([]);
@@ -27,13 +27,14 @@ export function useDeals(searchQuery: string) {
         }
 
         let isMounted = true;
+        const normalizedQuery = searchQuery.toLowerCase().trim();
 
         const fetchLiveDeals = async () => {
             setLoading(true);
             setApiStatus("online");
 
             try {
-                const results: CheapSharkGame[] = await CheapSharkAPI.searchGames(searchQuery);
+                const results: CheapSharkGame[] = await CheapSharkAPI.searchGames(normalizedQuery);
 
                 if (isMounted) {
                     const formattedDeals: AppDeal[] = results.map(game => {
@@ -52,20 +53,27 @@ export function useDeals(searchQuery: string) {
 
                     setDeals(formattedDeals);
 
-                    // СОХРАНЯЕМ В КЭШ: Если API ответил успешно, запоминаем эти игры!
-                    localStorage.setItem(CACHE_KEY, JSON.stringify(formattedDeals));
+                    // СОХРАНЯЕМ В УМНЫЙ КЭШ:
+                    // 1. Достаем старый словарь всех поисков
+                    const existingCache = JSON.parse(localStorage.getItem(CACHE_KEY) || '{}');
+                    // 2. Записываем новый результат именно под ЭТИМ словом
+                    existingCache[normalizedQuery] = formattedDeals;
+                    // 3. Сохраняем обратно в хранилище
+                    localStorage.setItem(CACHE_KEY, JSON.stringify(existingCache));
                 }
             } catch (error) {
                 console.error("API упал, включаем фоллбэк:", error);
                 if (isMounted) {
                     setApiStatus("fallback");
 
-                    // ДОСТАЕМ ИЗ КЭША: Ищем сохраненные игры в localStorage
-                    const cachedData = localStorage.getItem(CACHE_KEY);
-                    if (cachedData) {
-                        setDeals(JSON.parse(cachedData)); // Показываем старые данные
+                    // ДОСТАЕМ ИЗ УМНОГО КЭША:
+                    const cachedData = JSON.parse(localStorage.getItem(CACHE_KEY) || '{}');
+                    const savedDealsForThisQuery = cachedData[normalizedQuery];
+
+                    if (savedDealsForThisQuery && savedDealsForThisQuery.length > 0) {
+                        setDeals(savedDealsForThisQuery); // Нашли в кэше именно эту игру!
                     } else {
-                        setDeals([]); // Если кэш пуст, тогда уж ничего не поделать
+                        setDeals([]); // В кэше нет такого запроса
                     }
                 }
             } finally {
