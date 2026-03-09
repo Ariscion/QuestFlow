@@ -1,19 +1,27 @@
 @import "tailwindcss";
 
-/* QF tokens */
+/* QF tokens - ДИНАМИЧЕСКИЕ ПЕРЕМЕННЫЕ */
 :root{
   color-scheme: dark;
-  --qf-bg0:#050a11;
-  --qf-bg1:#071623;
+  --qf-bg0: #050a11;
+  --qf-bg1: #071623;
 
-  --qf-panel: rgba(255,255,255,0.055);
-  --qf-panel2: rgba(255,255,255,0.075);
+  /* Наша переменная из Settings.tsx (по умолчанию 0.55) */
+  --glass-opacity: 0.55;
+
+  /* Математика CSS: используем ползунок для расчета прозрачности фона */
+  /* Делим на 10, чтобы 0.55 превратилось в комфортные 0.055 для темной темы */
+  --qf-panel: rgba(255, 255, 255, calc(var(--glass-opacity) / 10));
+  --qf-panel2: rgba(255, 255, 255, calc((var(--glass-opacity) / 10) + 0.02));
 
   --qf-border: rgba(255,255,255,0.10);
   --qf-border2: rgba(255,255,255,0.14);
 
   --qf-text: rgba(255,255,255,0.86);
   --qf-muted: rgba(255,255,255,0.55);
+
+  /* Переменная для размытия (Blur), тоже привяжем к ползунку */
+  --glass-blur: calc(var(--glass-opacity) * 30px);
 }
 
 *{ box-sizing:border-box; }
@@ -22,32 +30,37 @@ html,body,#root{ height:100%; }
 body{
   margin:0;
   background:
-    radial-gradient(1200px 700px at 70% 30%, rgba(80,140,170,0.25), transparent 55%),
-    radial-gradient(900px 650px at 25% 80%, rgba(50,100,140,0.22), transparent 60%),
-    linear-gradient(180deg, var(--qf-bg0), var(--qf-bg1));
+          radial-gradient(1200px 700px at 70% 30%, rgba(80,140,170,0.25), transparent 55%),
+          radial-gradient(900px 650px at 25% 80%, rgba(50,100,140,0.22), transparent 60%),
+          linear-gradient(180deg, var(--qf-bg0), var(--qf-bg1));
   color:var(--qf-text);
   font-family: system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
 }
 
 @layer components{
   .qf-frame{
-    @apply border border-white/10 bg-white/[0.05] rounded-[30px] overflow-hidden;
+    @apply border border-white/10 rounded-[30px] overflow-hidden;
+    background-color: var(--qf-panel);
     box-shadow:
-      inset 0 1px 0 rgba(255,255,255,0.12),
-      inset 0 -30px 70px rgba(0,0,0,0.24);
-    backdrop-filter: blur(18px);
+            inset 0 1px 0 rgba(255,255,255,0.12),
+            inset 0 -30px 70px rgba(0,0,0,0.24);
+    /* Размытие теперь зависит от переменной */
+    backdrop-filter: blur(var(--glass-blur));
   }
 
   .qf-panel{
-    @apply rounded-[24px] border border-white/10 bg-[color:var(--qf-panel)];
+    @apply rounded-[24px] border border-white/10;
+    background-color: var(--qf-panel);
     box-shadow:
-      inset 0 1px 0 rgba(255,255,255,0.10),
-      inset 0 -18px 40px rgba(0,0,0,0.20);
-    backdrop-filter: blur(16px);
+            inset 0 1px 0 rgba(255,255,255,0.10),
+            inset 0 -18px 40px rgba(0,0,0,0.20);
+    /* Размытие теперь зависит от переменной */
+    backdrop-filter: blur(var(--glass-blur));
   }
 
   .qf-card{
-    @apply rounded-[18px] border border-white/10 bg-[color:var(--qf-panel2)];
+    @apply rounded-[18px] border border-white/10;
+    background-color: var(--qf-panel2);
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
   }
 

@@ -1,10 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Card, Panel } from "../components/ui";
 import { useApp } from "../app/store";
 
 export default function Settings() {
   const { state, actions } = useApp();
   const [cleared, setCleared] = useState(false);
+
+  // Состояния для настроек внешнего вида
+  const [glassIntensity, setGlassIntensity] = useState(55);
+  const [motionEnabled, setMotionEnabled] = useState(true);
+
+  // Применяем CSS-переменную при изменении ползунка
+  useEffect(() => {
+    document.documentElement.style.setProperty('--glass-opacity', `${glassIntensity / 100}`);
+  }, [glassIntensity]);
 
   // Наши QA-функции
   const handleClearCache = () => {
@@ -47,17 +56,32 @@ export default function Settings() {
             <div className="text-sm text-white/75 font-semibold mb-4">Внешний вид (Appearance)</div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
               <Card className="p-4 bg-white/[0.02] border-white/5">
-                <div className="text-xs text-white/45">Glass intensity (Интенсивность размытия)</div>
-                <div className="mt-3">
-                  <input type="range" min={0} max={100} defaultValue={55} className="w-full accent-blue-500" />
+                <div className="flex justify-between items-center mb-3">
+                  <div className="text-xs text-white/45">Glass intensity (Размытие)</div>
+                  <div className="text-xs text-blue-400 font-bold">{glassIntensity}%</div>
+                </div>
+                <div>
+                  <input
+                      type="range"
+                      min={0}
+                      max={100}
+                      value={glassIntensity}
+                      onChange={(e) => setGlassIntensity(Number(e.target.value))}
+                      className="w-full accent-blue-500"
+                  />
                 </div>
               </Card>
 
               <Card className="p-4 bg-white/[0.02] border-white/5">
                 <div className="text-xs text-white/45">Motion (Анимации)</div>
                 <div className="mt-3 flex items-center justify-between">
-                  <span className="text-xs text-white/65">Enable subtle animations</span>
-                  <input type="checkbox" defaultChecked className="accent-blue-500 w-4 h-4" />
+                  <span className="text-xs text-white/65">Включить анимации UI</span>
+                  <input
+                      type="checkbox"
+                      checked={motionEnabled}
+                      onChange={(e) => setMotionEnabled(e.target.checked)}
+                      className="accent-blue-500 w-4 h-4 cursor-pointer"
+                  />
                 </div>
               </Card>
             </div>
