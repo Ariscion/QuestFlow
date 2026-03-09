@@ -1,28 +1,25 @@
 import React, { useEffect, useState } from "react";
-import { Button, Card, Panel, Skeleton } from "../components/ui";
-import { useUserStore } from "../store/userStore";
-import { useAnalytics } from "../hooks/useAnalytics";
 import { useNavigate } from "react-router-dom";
+import { Button, Card, Panel, Skeleton } from "../components/ui";
+import { useAnalytics } from "../hooks/useAnalytics";
 import { CheapSharkAPI, type CheapSharkTopDeal } from "../services/cheapSharkApi";
 
 const USD_TO_KZT = 450;
 
 export default function Home() {
   const navigate = useNavigate();
-  const addClickXP = useUserStore((s) => s.addClickXP);
   const { trackEvent } = useAnalytics();
 
   const [topDeals, setTopDeals] = useState<CheapSharkTopDeal[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Загружаем скидки дня при открытии страницы
   useEffect(() => {
     let isMounted = true;
     const fetchDeals = async () => {
       try {
         const deals = await CheapSharkAPI.getTopDeals();
         if (isMounted) {
-          setTopDeals(deals.slice(0, 7)); // Берем топ-7 игр для красивой верстки (1 главная + 6 обычных)
+          setTopDeals(deals.slice(0, 7));
         }
       } catch (error) {
         console.error("Ошибка загрузки скидок:", error);
@@ -35,16 +32,10 @@ export default function Home() {
     return () => { isMounted = false; };
   }, []);
 
-  // Единая логика редиректа по CPA модели
-  const handleCpaRedirect = (deal: CheapSharkTopDeal) => {
-    trackEvent('REDIRECT_TO_STORE_HOME', { game: deal.title, dealRating: deal.dealRating });
-    addClickXP();
-
-    const storeUrl = deal.steamAppID
-        ? `https://store.steampowered.com/app/${deal.steamAppID}`
-        : `https://www.google.com/search?q=${encodeURIComponent(deal.title + " buy pc game")}`;
-
-    window.open(storeUrl, '_blank');
+  // НОВАЯ ФУНКЦИЯ: Ведет на страницу игры, а не в Steam
+  const handleCardClick = (gameId: string, gameTitle: string) => {
+    trackEvent('VIEW_GAME_DETAILS', { game: gameTitle, source: 'Home_TopDeals' });
+    navigate(`/game/${gameId}`);
   };
 
   const heroDeal = topDeals.length > 0 ? topDeals[0] : null;
@@ -69,10 +60,10 @@ export default function Home() {
               </div>
           ) : (
               <div className="flex flex-col gap-8">
-                {/* 1. ГЛАВНАЯ СКИДКА ДНЯ (HERO BANNER) */}
+                {/* 1. ГЛАВНАЯ СКИДКА ДНЯ */}
                 {heroDeal && (
-                    <div className="relative group cursor-pointer" onClick={() => handleCpaRedirect(heroDeal)}>
-                      {/* Ambient Background */}
+                    // Клик по баннеру ведет на Game.tsx
+                    <div className="relative group cursor-pointer" onClick={() => handleCardClick(heroDeal.gameID, heroDeal.title)}>
                       <div
                           className="absolute -inset-2 rounded-[2rem] blur-3xl opacity-30 group-hover:opacity-60 transition duration-700 z-0"
                           style={{ backgroundImage: `url(${heroDeal.thumb})`, backgroundSize: 'cover' }}
@@ -95,7 +86,7 @@ export default function Home() {
 
                           <div className="flex items-center gap-4 mt-auto">
                             <Button className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white py-4 rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.4)] text-lg">
-                              Перейти за {Math.round(parseFloat(heroDeal.salePrice) * USD_TO_KZT)} ₸ ↗
+                              Сравнить цены от {Math.round(parseFloat(heroDeal.salePrice) * USD_TO_KZT)} ₸ →
                             </Button>
                           </div>
                         </div>
@@ -106,7 +97,8 @@ export default function Home() {
                 {/* 2. СЕТКА ОСТАЛЬНЫХ СКИДОК */}
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                   {gridDeals.map((deal) => (
-                      <div key={deal.dealID} className="relative group cursor-pointer" onClick={() => handleCpaRedirect(deal)}>
+                      // Клик по карточке ведет на Game.tsx
+                      <div key={deal.dealID} className="relative group cursor-pointer" onClick={() => handleCardClick(deal.gameID, deal.title)}>
                         <div
                             className="absolute -inset-1 rounded-2xl blur-xl opacity-20 group-hover:opacity-50 transition duration-500 z-0"
                             style={{ backgroundImage: `url(${deal.thumb})`, backgroundSize: 'cover' }}
@@ -131,7 +123,7 @@ export default function Home() {
                               <span className="text-xl font-black text-emerald-400">{Math.round(parseFloat(deal.salePrice) * USD_TO_KZT)} ₸</span>
                             </div>
                             <div className="bg-white/10 hover:bg-white/20 p-2 rounded-lg text-white/70 transition-colors">
-                              ↗
+                              →
                             </div>
                           </div>
                         </Card>

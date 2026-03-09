@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { Button, Card, Panel, Pill, Skeleton } from "../components/ui";
 import { useDeals } from "../hooks/useDeals";
 import { useUserStore } from "../store/userStore";
@@ -6,37 +7,20 @@ import { useApp } from "../app/store";
 import { useAnalytics } from "../hooks/useAnalytics";
 
 export default function Store() {
-    const appContext = useApp();
-    const searchQuery = appContext?.state?.search || "";
+    const { state } = useApp();
+    const searchQuery = state.search || "";
     const { deals, loading, apiStatus } = useDeals(searchQuery);
 
-    // Баланс нам тут больше не нужен, берем только функцию добавления опыта
-    const addClickXP = useUserStore((s) => s.addClickXP);
+    // ДОБАВИЛИ НАВИГАЦИЮ
+    const navigate = useNavigate();
 
     // Движок аналитики
     const { trackEvent } = useAnalytics();
 
-    // НОВАЯ ЛОГИКА ПЕРЕХОДА
-    const handleActionClick = (deal: any) => {
-        // 1. Аналитика: фиксируем успешный уход юзера в магазин (наш KPI)
-        trackEvent('REDIRECT_TO_STORE', {
-            game: deal.title,
-            priceKZT: deal.bestPriceKZT,
-            isFromCache: apiStatus !== "online"
-        });
-
-        // 2. Геймификация: поощряем пользователя XP за то, что он ищет скидки через нас
-        addClickXP();
-
-        // 3. Формируем URL магазина
-        // Если у игры есть Steam ID, мы можем кинуть его прямо на страницу игры в Стим!
-        // Иначе - отправляем в поиск (в будущем можно будет добавить ссылки на EGS и другие магазины)
-        const storeUrl = deal.steamAppID
-            ? `https://store.steampowered.com/app/${deal.steamAppID}`
-            : `https://www.google.com/search?q=${encodeURIComponent(deal.title + " buy pc game")}`;
-
-        // 4. Открываем магазин в новой вкладке
-        window.open(storeUrl, '_blank');
+    // НОВАЯ ФУНКЦИЯ: Просто перекидывает на страницу игры внутри нашего приложения
+    const handleCardClick = (gameId: string, gameTitle: string) => {
+        trackEvent('VIEW_GAME_DETAILS', { game: gameTitle });
+        navigate(`/game/${gameId}`);
     };
 
     return (
@@ -61,7 +45,7 @@ export default function Store() {
                             <div>
                                 <div className="text-sm text-yellow-400 font-bold tracking-wide">Внимание: Данные из кэша</div>
                                 <div className="text-xs text-white/60 mt-1 leading-relaxed">
-                                    Соединение с серверами магазинов временно недоступно. Мы показываем последние сохраненные цены. Финальная стоимость при переходе в магазин может отличаться.
+                                    Соединение с серверами магазинов временно недоступно. Мы показываем последние сохраненные цены.
                                 </div>
                             </div>
                         </div>
@@ -77,7 +61,7 @@ export default function Store() {
                         </div>
                     ) : deals.length > 0 ? (
                         deals.map((deal) => (
-                            <div key={deal.id} className="relative group">
+                            <div key={deal.id} className="relative group cursor-pointer" onClick={() => handleCardClick(deal.id, deal.title)}>
 
                                 {/* AMBIENT ПОДСВЕТКА */}
                                 <div
@@ -116,16 +100,15 @@ export default function Store() {
                                         </p>
                                     </div>
 
-                                    {/* НОВАЯ КНОПКА ПЕРЕХОДА В МАГАЗИН */}
+                                    {/* КНОПКА СРАВНЕНИЯ ЦЕН */}
                                     <div className="flex gap-3 w-full sm:w-auto shrink-0 z-10">
                                         <Button
-                                            onClick={() => handleActionClick(deal)}
                                             className="w-full sm:w-auto flex flex-col items-center py-2 px-6 bg-gradient-to-r from-blue-600/80 to-indigo-600/80 hover:from-blue-500 hover:to-indigo-500 text-white border border-white/10 shadow-[0_0_15px_rgba(59,130,246,0.3)] group-hover:shadow-[0_0_25px_rgba(59,130,246,0.6)] backdrop-blur-md transition-all rounded-xl"
                                         >
                                             <span className="text-[10px] uppercase tracking-wider opacity-70 mb-0.5 flex items-center gap-1">
-                                                Перейти в магазин <span className="text-xs ml-1">↗</span>
+                                                Сравнить цены <span className="text-xs ml-1">→</span>
                                             </span>
-                                            <span className="text-lg font-black">{deal.bestPriceKZT > 0 ? `${deal.bestPriceKZT} ₸` : 'FREE'}</span>
+                                            <span className="text-lg font-black">{deal.bestPriceKZT > 0 ? `от ${deal.bestPriceKZT} ₸` : 'FREE'}</span>
                                         </Button>
                                     </div>
                                 </Card>
