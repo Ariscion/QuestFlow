@@ -12,7 +12,6 @@ export interface AppDeal {
 }
 
 const USD_TO_KZT = 450;
-// Ключ для нашего хранилища в браузере
 const CACHE_KEY = 'qf_search_cache_v2';
 
 export function useDeals(searchQuery: string) {
@@ -53,12 +52,8 @@ export function useDeals(searchQuery: string) {
 
                     setDeals(formattedDeals);
 
-                    // СОХРАНЯЕМ В УМНЫЙ КЭШ:
-                    // 1. Достаем старый словарь всех поисков
                     const existingCache = JSON.parse(localStorage.getItem(CACHE_KEY) || '{}');
-                    // 2. Записываем новый результат именно под ЭТИМ словом
                     existingCache[normalizedQuery] = formattedDeals;
-                    // 3. Сохраняем обратно в хранилище
                     localStorage.setItem(CACHE_KEY, JSON.stringify(existingCache));
                 }
             } catch (error) {
@@ -66,14 +61,25 @@ export function useDeals(searchQuery: string) {
                 if (isMounted) {
                     setApiStatus("fallback");
 
-                    // ДОСТАЕМ ИЗ УМНОГО КЭША:
                     const cachedData = JSON.parse(localStorage.getItem(CACHE_KEY) || '{}');
-                    const savedDealsForThisQuery = cachedData[normalizedQuery];
 
-                    if (savedDealsForThisQuery && savedDealsForThisQuery.length > 0) {
-                        setDeals(savedDealsForThisQuery); // Нашли в кэше именно эту игру!
+                    let allCachedGames: AppDeal[] = [];
+                    Object.values(cachedData).forEach((gamesArray: any) => {
+                        allCachedGames = [...allCachedGames, ...gamesArray];
+                    });
+
+                    // Убираем дубликаты
+                    const uniqueCachedGames = Array.from(new Map(allCachedGames.map(item => [item.id, item])).values());
+
+                    // Фильтруем по частичному совпадению
+                    const matchedGames = uniqueCachedGames.filter(game =>
+                        game.title.toLowerCase().includes(normalizedQuery)
+                    );
+
+                    if (matchedGames.length > 0) {
+                        setDeals(matchedGames);
                     } else {
-                        setDeals([]); // В кэше нет такого запроса
+                        setDeals([]);
                     }
                 }
             } finally {
