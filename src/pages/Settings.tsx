@@ -10,12 +10,39 @@ export default function Settings() {
   const [glassIntensity, setGlassIntensity] = useState(55);
   const [motionEnabled, setMotionEnabled] = useState(true);
 
-  // Применяем CSS-переменную при изменении ползунка
+  // 1. Применяем CSS-переменную при изменении ползунка (размытие)
   useEffect(() => {
     document.documentElement.style.setProperty('--glass-opacity', `${glassIntensity / 100}`);
   }, [glassIntensity]);
 
-  // Наши QA-функции
+  // 2. Реальное отключение анимаций (Accessibility Feature)
+  useEffect(() => {
+    if (motionEnabled) {
+      document.body.classList.remove('disable-motion');
+    } else {
+      document.body.classList.add('disable-motion');
+    }
+
+    // Динамически внедряем стиль, который убивает все транзишены в проекте
+    const styleId = 'qf-motion-control';
+    let styleEl = document.getElementById(styleId);
+
+    if (!motionEnabled && !styleEl) {
+      styleEl = document.createElement('style');
+      styleEl.id = styleId;
+      styleEl.innerHTML = `
+            body.disable-motion *, body.disable-motion *::before, body.disable-motion *::after {
+                transition-duration: 0.001ms !important;
+                animation-duration: 0.001ms !important;
+            }
+        `;
+      document.head.appendChild(styleEl);
+    } else if (motionEnabled && styleEl) {
+      styleEl.remove();
+    }
+  }, [motionEnabled]);
+
+  // QA-функции
   const handleClearCache = () => {
     localStorage.removeItem('qf_search_cache_v2');
     setCleared(true);
@@ -75,7 +102,7 @@ export default function Settings() {
               <Card className="p-4 bg-white/[0.02] border-white/5">
                 <div className="text-xs text-white/45">Motion (Анимации)</div>
                 <div className="mt-3 flex items-center justify-between">
-                  <span className="text-xs text-white/65">Включить анимации UI</span>
+                  <span className="text-xs text-white/65">Плавные переходы UI</span>
                   <input
                       type="checkbox"
                       checked={motionEnabled}
@@ -93,7 +120,7 @@ export default function Settings() {
               <Card className="p-4 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white/[0.02] border-white/5">
                 <div>
                   <div className="text-sm text-white/80 font-bold">Кэш API (Offline Mode)</div>
-                  <div className="text-xs text-white/50 mt-1 max-w-md">Удаляет сохраненные поисковые запросы. Полезно для тестирования поведения приложения при отсутствии сети.</div>
+                  <div className="text-xs text-white/50 mt-1 max-w-md">Удаляет сохраненные запросы. Полезно для тестирования поведения при отсутствии сети.</div>
                 </div>
                 <Button
                     onClick={handleClearCache}
@@ -119,7 +146,7 @@ export default function Settings() {
                     variant="ghost"
                     className="text-white/40 hover:text-white"
                     onClick={() => {
-                      localStorage.clear(); // Жесткий сброс всего (и стейта, и кэша)
+                      localStorage.clear();
                       window.location.href = "/";
                     }}
                 >

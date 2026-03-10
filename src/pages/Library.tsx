@@ -1,10 +1,13 @@
 import React from "react";
-import { Button, Card, Panel, Pill } from "../components/ui"; // Проверь пути
+import { Button, Card, Panel, Pill } from "../components/ui";
 import { useUserStore } from "../store/userStore";
+import { useApp } from "../app/store";
 
 export default function Library() {
-    // Магия Zustand: просто достаем всё, что нам нужно, одной строчкой
     const { library, userLevel, userXP, xpToNextLevel, balanceKZT } = useUserStore();
+
+    // Достаем глобальный стейт, чтобы взять оттуда имя юзера
+    const { state } = useApp();
 
     // Вычисляем процент заполнения полоски опыта
     const xpPercentage = Math.min(100, Math.round((userXP / xpToNextLevel) * 100));
@@ -25,7 +28,8 @@ export default function Library() {
                                 </div>
                             </div>
                             <div>
-                                <div className="text-lg font-bold text-white">Геймер-Аналитик</div>
+                                {/* Имя теперь берется из настроек профиля */}
+                                <div className="text-lg font-bold text-white">{state.user?.name ?? "QuestFlow User"}</div>
                                 <div className="text-xs text-blue-300">Уровень профиля: {userLevel}</div>
                             </div>
                         </div>
@@ -44,9 +48,9 @@ export default function Library() {
                             </div>
                         </div>
 
-                        {/* Баланс */}
+                        {/* Баланс -> Сэкономленные средства */}
                         <div className="text-right">
-                            <div className="text-xs text-white/50 uppercase tracking-wider mb-1">Остаток средств</div>
+                            <div className="text-xs text-emerald-400/80 uppercase tracking-wider mb-1">Сэкономлено средств</div>
                             <div className="text-2xl font-black text-emerald-400 drop-shadow-[0_0_10px_rgba(52,211,153,0.3)]">
                                 {balanceKZT.toLocaleString('ru-RU')} ₸
                             </div>
@@ -58,9 +62,9 @@ export default function Library() {
             {/* --- ОСНОВНАЯ ЧАСТЬ: СПИСОК ИГР --- */}
             <Panel className="p-6 flex-1 overflow-y-auto relative bg-black/20">
                 <div className="flex items-center justify-between mb-6">
-                    <div className="text-lg text-white/90 font-bold">Моя Библиотека</div>
+                    <div className="text-lg text-white/90 font-bold">Синхронизированные игры</div>
                     <Pill className="bg-white/5 text-white/70 border-white/10">
-                        Игр куплено: {library.length}
+                        Игр в коллекции: {library.length}
                     </Pill>
                 </div>
 
@@ -88,22 +92,22 @@ export default function Library() {
 
                                     <div className="mt-2 space-y-1">
                                         <div className="flex justify-between text-xs">
-                                            <span className="text-white/40">Магазин:</span>
+                                            <span className="text-white/40">Платформа:</span>
                                             <span className="text-white/80 font-medium">{game.purchasedStore}</span>
                                         </div>
                                         <div className="flex justify-between text-xs">
-                                            <span className="text-white/40">Куплено за:</span>
+                                            <span className="text-white/40">Цена покупки:</span>
                                             <span className="text-emerald-400 font-medium">{game.purchasedPrice}</span>
                                         </div>
                                         <div className="flex justify-between text-xs">
-                                            <span className="text-white/40">Дата:</span>
+                                            <span className="text-white/40">Дата синхронизации:</span>
                                             <span className="text-white/60">
                                                 {game.purchasedAt ? new Date(game.purchasedAt).toLocaleDateString('ru-RU') : 'Неизвестно'}
                                             </span>
                                         </div>
                                     </div>
                                 </div>
-                                <Button variant="primary" className="w-full bg-blue-600 hover:bg-blue-500 text-white border-none" onClick={() => alert(`Запуск игры ${game.title}...\nПроверка файлов...`)}>
+                                <Button variant="primary" className="w-full bg-blue-600 hover:bg-blue-500 text-white border-none" onClick={() => alert(`Запуск игры ${game.title}...\nПеренаправление в лончер...`)}>
                                     Установить / Играть
                                 </Button>
                             </Card>
