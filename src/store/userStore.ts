@@ -16,7 +16,7 @@ interface UserState {
     userLevel: number;
     userXP: number;
     xpToNextLevel: number;
-    balanceKZT: number;
+    // balanceKZT удален!
     library: Game[];
     buyGame: (gameData: Game, purchasedPrice: string, storeName: string) => boolean;
     addClickXP: () => void;
@@ -28,11 +28,8 @@ export const useUserStore = create<UserState>()(
             userLevel: 1,
             userXP: 0,
             xpToNextLevel: 1000,
-            balanceKZT: 15000, // Оставляем как виртуальные QF Coins на будущее
-
             library: [],
 
-            // Метод теперь работает как "Синхронизация" игры после CPA-перехода
             buyGame: (gameData, purchasedPrice, storeName) => {
                 const { library } = get();
 
@@ -41,9 +38,8 @@ export const useUserStore = create<UserState>()(
                     return false;
                 }
 
-                // БОЛЬШЕ НЕТ СПИСАНИЯ ДЕНЕГ! Мы просто добавляем игру и даем XP
                 set((state) => {
-                    const newXP = state.userXP + 150; // Даем много XP за "покупку" через нас
+                    const newXP = state.userXP + 150;
                     const isLevelUp = newXP >= state.xpToNextLevel;
 
                     return {
@@ -56,7 +52,6 @@ export const useUserStore = create<UserState>()(
                                 purchasedStore: storeName
                             }
                         ],
-                        // state.balanceKZT остается нетронутым!
                         userXP: isLevelUp ? (newXP - state.xpToNextLevel) : newXP,
                         userLevel: isLevelUp ? state.userLevel + 1 : state.userLevel,
                         xpToNextLevel: isLevelUp ? Math.floor(state.xpToNextLevel * 1.5) : state.xpToNextLevel

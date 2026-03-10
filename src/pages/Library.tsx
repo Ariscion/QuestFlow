@@ -4,23 +4,19 @@ import { useUserStore } from "../store/userStore";
 import { useApp } from "../app/store";
 
 export default function Library() {
-    const { library, userLevel, userXP, xpToNextLevel, balanceKZT } = useUserStore();
-
-    // Достаем глобальный стейт, чтобы взять оттуда имя юзера
+    // Убрали balanceKZT из деструктуризации
+    const { library, userLevel, userXP, xpToNextLevel } = useUserStore();
     const { state } = useApp();
 
-    // Вычисляем процент заполнения полоски опыта
     const xpPercentage = Math.min(100, Math.round((userXP / xpToNextLevel) * 100));
 
     return (
         <div className="h-full flex flex-col gap-5 overflow-hidden">
-            {/* --- ШАПКА: ПРОФИЛЬ ПОЛЬЗОВАТЕЛЯ --- */}
             <div className="flex flex-col gap-3 shrink-0">
                 <div className="text-sm text-white/65 font-semibold">Аккаунт QuestFlow</div>
 
                 <Panel className="p-6 bg-gradient-to-r from-blue-900/40 to-indigo-900/20 border-blue-500/20">
                     <div className="flex items-center justify-between gap-6">
-                        {/* Аватар и Уровень */}
                         <div className="flex items-center gap-4">
                             <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-cyan-400 to-blue-600 p-[2px] shadow-[0_0_20px_rgba(34,211,238,0.4)]">
                                 <div className="w-full h-full bg-slate-900 rounded-full flex items-center justify-center border-2 border-transparent">
@@ -28,13 +24,11 @@ export default function Library() {
                                 </div>
                             </div>
                             <div>
-                                {/* Имя теперь берется из настроек профиля */}
-                                <div className="text-lg font-bold text-white">{state.user?.name ?? "QuestFlow User"}</div>
+                                <div className="text-lg font-bold text-white">{state.user?.name ?? "Геймер-Аналитик"}</div>
                                 <div className="text-xs text-blue-300">Уровень профиля: {userLevel}</div>
                             </div>
                         </div>
 
-                        {/* Полоска опыта (XP Bar) */}
                         <div className="flex-1 max-w-md">
                             <div className="flex justify-between text-xs text-white/60 mb-2 font-medium">
                                 <span>{userXP} XP</span>
@@ -48,18 +42,17 @@ export default function Library() {
                             </div>
                         </div>
 
-                        {/* Баланс -> Сэкономленные средства */}
+                        {/* Заменили Баланс на статистику игр */}
                         <div className="text-right">
-                            <div className="text-xs text-emerald-400/80 uppercase tracking-wider mb-1">Сэкономлено средств</div>
-                            <div className="text-2xl font-black text-emerald-400 drop-shadow-[0_0_10px_rgba(52,211,153,0.3)]">
-                                {balanceKZT.toLocaleString('ru-RU')} ₸
+                            <div className="text-xs text-blue-400/80 uppercase tracking-wider mb-1">Синхронизировано</div>
+                            <div className="text-2xl font-black text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">
+                                {library.length} <span className="text-sm font-normal text-white/60">игр</span>
                             </div>
                         </div>
                     </div>
                 </Panel>
             </div>
 
-            {/* --- ОСНОВНАЯ ЧАСТЬ: СПИСОК ИГР --- */}
             <Panel className="p-6 flex-1 overflow-y-auto relative bg-black/20">
                 <div className="flex items-center justify-between mb-6">
                     <div className="text-lg text-white/90 font-bold">Синхронизированные игры</div>
@@ -69,7 +62,6 @@ export default function Library() {
                 </div>
 
                 {library.length === 0 ? (
-                    // Пустое состояние (Empty State)
                     <div className="h-64 flex flex-col items-center justify-center text-center border-2 border-dashed border-white/10 rounded-2xl bg-white/[0.02]">
                         <div className="text-4xl mb-4 opacity-50">🎮</div>
                         <div className="text-lg font-medium text-white/70 mb-2">Библиотека пуста</div>
@@ -78,7 +70,6 @@ export default function Library() {
                         </div>
                     </div>
                 ) : (
-                    // Сетка купленных игр
                     <div className="grid grid-cols-2 lg:grid-cols-3 gap-5">
                         {library.map((game, index) => (
                             <Card key={`${game.id}-${index}`} className="p-4 flex flex-col gap-4 bg-white/[0.03] hover:bg-white/[0.06] transition-colors border-white/5">
@@ -96,18 +87,18 @@ export default function Library() {
                                             <span className="text-white/80 font-medium">{game.purchasedStore}</span>
                                         </div>
                                         <div className="flex justify-between text-xs">
-                                            <span className="text-white/40">Цена покупки:</span>
+                                            <span className="text-white/40">Цена на момент перехода:</span>
                                             <span className="text-emerald-400 font-medium">{game.purchasedPrice}</span>
                                         </div>
                                         <div className="flex justify-between text-xs">
-                                            <span className="text-white/40">Дата синхронизации:</span>
+                                            <span className="text-white/40">Дата:</span>
                                             <span className="text-white/60">
                                                 {game.purchasedAt ? new Date(game.purchasedAt).toLocaleDateString('ru-RU') : 'Неизвестно'}
                                             </span>
                                         </div>
                                     </div>
                                 </div>
-                                <Button variant="primary" className="w-full bg-blue-600 hover:bg-blue-500 text-white border-none" onClick={() => alert(`Запуск игры ${game.title}...\nПеренаправление в лончер...`)}>
+                                <Button variant="primary" className="w-full bg-blue-600 hover:bg-blue-500 text-white border-none" onClick={() => alert(`Запуск игры ${game.title}...\nПеренаправление в лаунчер...`)}>
                                     Установить / Играть
                                 </Button>
                             </Card>

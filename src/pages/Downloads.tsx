@@ -21,14 +21,21 @@ export default function Downloads() {
 
     React.useEffect(() => {
         const t = setInterval(() => {
-            setItems(prev =>
-                prev.map(it => {
+            setItems(prev => {
+                const nextItems = prev.map(it => {
                     if (it.state !== "syncing") return it;
                     const add = Math.max(0.5, it.speed / 10);
                     const next = Math.min(100, it.progress + add);
                     return { ...it, progress: next, state: next >= 100 ? "done" : "syncing" };
-                })
-            );
+                });
+
+                // QA Фикс: Если все задачи завершены - убиваем таймер, чтобы не грузить процессор
+                if (nextItems.every(it => it.state === "done")) {
+                    clearInterval(t);
+                }
+
+                return nextItems;
+            });
         }, 500);
         return () => clearInterval(t);
     }, []);
@@ -71,7 +78,6 @@ export default function Downloads() {
                             </div>
 
                             <div className="mt-3">
-                                {/* Используем твой компонент Progress */}
                                 <Progress value={it.progress} />
                                 <div className="mt-2 flex justify-between text-[11px] text-white/45 font-medium">
                                     <span>{Math.round(it.progress)}%</span>
