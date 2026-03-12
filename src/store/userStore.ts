@@ -20,6 +20,7 @@ interface UserState {
     library: Game[];
     buyGame: (gameData: Game, purchasedPrice: string, storeName: string) => boolean;
     addClickXP: () => void;
+    setCloudData: (data: Partial<UserState>) => void;
 }
 
 export const useUserStore = create<UserState>()(
@@ -71,7 +72,12 @@ export const useUserStore = create<UserState>()(
                     }
                 }
                 return { userXP: newXP };
-            })
+            }),
+
+            setCloudData: (data) => set((state) => ({
+                ...state,
+                ...data,
+            }))
         }),
         {
             name: "questflow-user-storage",

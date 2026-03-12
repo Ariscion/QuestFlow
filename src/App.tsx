@@ -3,7 +3,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { AppProvider, useApp, useIsReady } from "./app/store";
 import Layout from "./components/Layout";
-import { auth } from "./lib/firebase";
+import { auth, getUserDataFromDb, saveUserDataToDb } from "./lib/firebase";
 import AuthOnboarding from "./pages/AuthOnboarding";
 import Downloads from "./pages/Downloads";
 import Game from "./pages/Game";
@@ -13,6 +13,7 @@ import Notifications from "./pages/Notifications";
 import Settings from "./pages/Settings";
 import States from "./pages/States";
 import Store from "./pages/Store";
+import { useUserStore } from "./store/userStore";
 
 type ProtectedProps = {
   children: ReactNode;
@@ -24,10 +25,11 @@ function Protected({ children }: ProtectedProps) {
 }
 
 function AppContent() {
-  const { actions } = useApp();
+  const { state, actions } = useApp();
+  const { library, userXP, userLevel, xpToNextLevel } = useUserStore();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         actions.setUser({
           name: firebaseUser.displayName || "User",
@@ -37,6 +39,11 @@ function AppContent() {
           uid: firebaseUser.uid,
         });
 
+        const cloudData = await getUserDataFromDb(firebaseUser.uid);
+        if (cloudData !== null) {
+          useUserStore.getState().setCloudData(cloudData as Partial<ReturnType<typeof useUserStore.getState>>);
+        }
+
         return;
       }
 
@@ -45,6 +52,19 @@ function AppContent() {
 
     return () => unsubscribe();
   }, [actions]);
+
+  useEffect(() => {
+    if (!state.user?.uid) {
+      return;
+    }
+
+    void saveUserDataToDb(state.user.uid, {
+      library,
+      userXP,
+      userLevel,
+      xpToNextLevel,
+    });
+  }, [library, userXP, userLevel, xpToNextLevel, state.user?.uid]);
 
   return (
     <Routes>
