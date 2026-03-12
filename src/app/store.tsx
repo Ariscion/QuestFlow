@@ -37,6 +37,7 @@ export type AppActions = {
   setUser: (user?: User) => void;
 
   setTier: (tier: Tier) => void;
+  setReady: (ready: boolean) => void;
   setOnboardingDone: (done: boolean) => void;
 
   setInstallLocation: (path: string) => void;
@@ -151,6 +152,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     },
     setTier(tier) {
       setState(s => ({ ...s, tier }));
+    },
+    setReady(ready) {
+      setState(s => ({ ...s, onboardingDone: ready }));
     },
     setOnboardingDone(done) {
       setState(s => ({ ...s, onboardingDone: done }));
