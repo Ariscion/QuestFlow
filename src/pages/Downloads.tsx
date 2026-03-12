@@ -1,138 +1,62 @@
-import { useEffect, useState } from "react";
-import { Button, Card, Panel, Progress } from "../components/ui";
+import { Button, Card, Panel } from "../components/ui";
 
-type SyncTaskState = "syncing" | "paused" | "done";
-
-type SyncTask = {
-    id: string;
-    title: string;
-    totalItems: number;
-    speed: number;
-    progress: number;
-    state: SyncTaskState;
-};
-
-const initial: SyncTask[] = [
-    { id: "d1", title: "Steam Account (Ariscion)", totalItems: 342, speed: 12.5, progress: 32, state: "syncing" },
-    { id: "d2", title: "Epic Games Library", totalItems: 84, speed: 5.1, progress: 64, state: "paused" },
-    { id: "d3", title: "GOG Galaxy Connection", totalItems: 12, speed: 0, progress: 100, state: "done" },
+const features = [
+    {
+        title: "Единый лаунчер",
+        description: "Все ваши игры в одном месте",
+    },
+    {
+        title: "Умная загрузка",
+        description: "Управление скоростью и приоритетами",
+    },
+    {
+        title: "Легковесность",
+        description: "Минимальное потребление ОЗУ",
+    },
 ];
 
 export default function Downloads() {
-    const [items, setItems] = useState<SyncTask[]>(initial);
-
-    useEffect(() => {
-        const intervalId = window.setInterval(() => {
-            setItems(prev => {
-                const nextItems = prev.map(item => {
-                    if (item.state !== "syncing") {
-                        return item;
-                    }
-
-                    const progressStep = Math.max(0.5, item.speed / 10);
-                    const nextProgress = Math.min(100, item.progress + progressStep);
-
-                    return {
-                        ...item,
-                        progress: nextProgress,
-                        state: nextProgress >= 100 ? "done" : "syncing",
-                    } satisfies SyncTask;
-                });
-
-                if (nextItems.every(item => item.state === "done")) {
-                    window.clearInterval(intervalId);
-                }
-
-                return nextItems;
-            });
-        }, 500);
-
-        return () => window.clearInterval(intervalId);
-    }, []);
-
-    function toggle(id: string) {
-        setItems(prev => prev.map(item => {
-            if (item.id !== id || item.state === "done") {
-                return item;
-            }
-
-            return {
-                ...item,
-                state: item.state === "paused" ? "syncing" : "paused",
-            };
-        }));
-    }
-
-    const getStatusLabel = (task: SyncTask) => {
-        if (task.state === "done") {
-            return "Синхронизировано";
-        }
-
-        if (task.state === "paused") {
-            return "Пауза";
-        }
-
-        return `Обработка: ${task.speed.toFixed(1)} игр/сек`;
-    };
-
-    const getActionLabel = (state: SyncTaskState) => {
-        if (state === "paused") {
-            return "Возобновить";
-        }
-
-        if (state === "syncing") {
-            return "Пауза";
-        }
-
-        return "Готово";
-    };
-
     return (
-        <div className="h-full flex flex-col gap-5">
-            <div className="text-sm text-white/65 font-semibold">Синхронизация библиотек</div>
+        <div className="h-full overflow-y-auto">
+            <Panel className="p-8 md:p-10 bg-black/20 min-h-full flex flex-col justify-center gap-10">
+                <section className="max-w-3xl mx-auto text-center">
+                    <div className="inline-flex items-center gap-2 rounded-full border border-blue-400/20 bg-blue-500/10 px-3 py-1 text-xs font-semibold text-blue-200 mb-5">
+                        <span className="w-2 h-2 rounded-full bg-blue-300 animate-pulse" />
+                        Десктоп-клиент в разработке
+                    </div>
 
-            <Panel className="p-6 bg-black/20">
-                <div className="space-y-4">
-                    {items.map(it => (
-                        <Card key={it.id} className="p-4 bg-white/[0.02] border-white/5 hover:border-white/10 transition-colors">
-                            <div className="flex items-center justify-between gap-4">
-                                <div>
-                                    <div className="text-sm text-white/85 font-semibold flex items-center gap-2">
-                                        {it.state === "syncing" && <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />}
-                                        {it.title}
-                                    </div>
-                                    <div className="text-[11px] text-white/45 mt-1">
-                                        {getStatusLabel(it)}
-                                    </div>
-                                </div>
+                    <h1 className="text-4xl md:text-6xl font-black tracking-tight mb-4 bg-gradient-to-r from-cyan-300 via-blue-300 to-indigo-300 bg-clip-text text-transparent">
+                        QuestFlow Desktop
+                    </h1>
 
-                                <Button
-                                    variant={it.state === "paused" ? "primary" : "soft"}
-                                    onClick={() => toggle(it.id)}
-                                    disabled={it.state === "done"}
-                                    className={it.state === "paused" ? "bg-blue-600 hover:bg-blue-500" : ""}
-                                >
-                                    {getActionLabel(it.state)}
-                                </Button>
-                            </div>
+                    <p className="text-white/65 text-base md:text-lg leading-relaxed max-w-2xl mx-auto mb-8">
+                        Получите максимум: авто-обновления, фоновая загрузка и игровой оверлей в нашем нативном клиенте.
+                    </p>
 
-                            <div className="mt-3">
-                                <Progress value={it.progress} />
-                                <div className="mt-2 flex justify-between text-[11px] text-white/45 font-medium">
-                                    <span>{Math.round(it.progress)}%</span>
-                                    <span>{Math.round((it.progress / 100) * it.totalItems)} / {it.totalItems} игр</span>
-                                </div>
-                            </div>
+                    <div className="flex justify-center">
+                        <Button
+                            disabled
+                            className="px-8 py-3.5 text-base md:text-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 text-white opacity-50 cursor-not-allowed hover:from-blue-600 hover:to-indigo-600"
+                        >
+                            Скачать для Windows
+                            <span className="ml-3 rounded-full border border-white/30 bg-white/15 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider">
+                                Скоро
+                            </span>
+                        </Button>
+                    </div>
+                </section>
+
+                <section className="max-w-5xl mx-auto w-full grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
+                    {features.map((feature) => (
+                        <Card
+                            key={feature.title}
+                            className="p-5 bg-white/[0.03] border-white/10 hover:bg-white/[0.05] transition-colors"
+                        >
+                            <div className="text-lg font-bold text-white mb-2">{feature.title}</div>
+                            <div className="text-sm text-white/60 leading-relaxed">{feature.description}</div>
                         </Card>
                     ))}
-                </div>
-
-                <div className="mt-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl">
-                    <div className="text-xs text-blue-300 font-medium flex gap-2 items-start">
-                        <span>ℹ️</span>
-                        <span>Здесь отображаются фоновые процессы. Интеграция с официальными API магазинов позволяет автоматически подтягивать купленные вами игры в общую библиотеку QuestFlow.</span>
-                    </div>
-                </div>
+                </section>
             </Panel>
         </div>
     );

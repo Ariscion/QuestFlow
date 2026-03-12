@@ -1,9 +1,19 @@
-import { Button, Card, Panel, Pill } from "../components/ui";
+import { Card, Panel, Pill } from "../components/ui";
 import { useUserStore } from "../store/userStore";
 import { useApp } from "../app/store";
 
+const getPlatformBadge = (store?: string) => {
+    if (!store) return "Синхронизировано";
+
+    const normalized = store.toLowerCase();
+    if (normalized.includes("steam")) return "Steam";
+    if (normalized.includes("epic")) return "Epic Games";
+    if (normalized.includes("gog")) return "GOG";
+
+    return store;
+};
+
 export default function Library() {
-    // Убрали balanceKZT из деструктуризации
     const { library, userLevel, userXP, xpToNextLevel } = useUserStore();
     const { state } = useApp();
 
@@ -41,7 +51,6 @@ export default function Library() {
                             </div>
                         </div>
 
-                        {/* Заменили Баланс на статистику игр */}
                         <div className="text-right">
                             <div className="text-xs text-blue-400/80 uppercase tracking-wider mb-1">Синхронизировано</div>
                             <div className="text-2xl font-black text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">
@@ -61,11 +70,11 @@ export default function Library() {
                 </div>
 
                 {library.length === 0 ? (
-                    <div className="h-64 flex flex-col items-center justify-center text-center border-2 border-dashed border-white/10 rounded-2xl bg-white/[0.02]">
+                    <div className="h-64 flex flex-col items-center justify-center text-center border-2 border-dashed border-white/10 rounded-2xl bg-white/[0.02] px-6">
                         <div className="text-4xl mb-4 opacity-50">🎮</div>
-                        <div className="text-lg font-medium text-white/70 mb-2">Библиотека пуста</div>
-                        <div className="text-sm text-white/40 max-w-xs">
-                            Перейдите в магазин, чтобы найти лучшие скидки и пополнить свою коллекцию.
+                        <div className="text-lg font-medium text-white/70 mb-2">Ваша библиотека пуста</div>
+                        <div className="text-sm text-white/40 max-w-md">
+                            Перейдите в магазин, чтобы найти лучшие скидки и синхронизировать игры.
                         </div>
                     </div>
                 ) : (
@@ -75,31 +84,15 @@ export default function Library() {
                                 <img
                                     src={game.image}
                                     alt={game.title}
-                                    className="w-full h-32 object-cover rounded-xl shadow-inner opacity-90 hover:opacity-100 transition-opacity"
+                                    className="w-full h-40 object-cover rounded-xl shadow-inner opacity-90 hover:opacity-100 transition-opacity"
                                 />
-                                <div className="flex-1">
-                                    <h3 className="text-base font-bold text-white truncate">{game.title}</h3>
 
-                                    <div className="mt-2 space-y-1">
-                                        <div className="flex justify-between text-xs">
-                                            <span className="text-white/40">Платформа:</span>
-                                            <span className="text-white/80 font-medium">{game.purchasedStore}</span>
-                                        </div>
-                                        <div className="flex justify-between text-xs">
-                                            <span className="text-white/40">Цена на момент перехода:</span>
-                                            <span className="text-emerald-400 font-medium">{game.purchasedPrice}</span>
-                                        </div>
-                                        <div className="flex justify-between text-xs">
-                                            <span className="text-white/40">Дата:</span>
-                                            <span className="text-white/60">
-                                                {game.purchasedAt ? new Date(game.purchasedAt).toLocaleDateString('ru-RU') : 'Неизвестно'}
-                                            </span>
-                                        </div>
-                                    </div>
+                                <div className="flex items-start justify-between gap-3">
+                                    <h3 className="text-base font-bold text-white leading-tight">{game.title}</h3>
+                                    <Pill className="shrink-0 bg-emerald-500/15 text-emerald-300 border-emerald-400/20">
+                                        {getPlatformBadge(game.purchasedStore)}
+                                    </Pill>
                                 </div>
-                                <Button variant="primary" className="w-full bg-blue-600 hover:bg-blue-500 text-white border-none" onClick={() => alert(`Запуск игры ${game.title}...\nПеренаправление в лаунчер...`)}>
-                                    Установить / Играть
-                                </Button>
                             </Card>
                         ))}
                     </div>
