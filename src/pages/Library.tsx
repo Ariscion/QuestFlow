@@ -1,4 +1,3 @@
-import React from "react";
 import { Button, Card, Panel, Pill } from "../components/ui";
 import { useUserStore } from "../store/userStore";
 import { useApp } from "../app/store";

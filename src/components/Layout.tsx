@@ -1,10 +1,10 @@
-import React from "react";
-import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { useEffect, type ReactNode } from "react";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useApp, useIsAuthed, useIsReady } from "../app/store";
 import { IconBell, IconDownloads, IconHome, IconSettings, IconStore, IconLibrary } from "./icons";
 import { cn } from "../lib/cn";
 
-function RailItem({ to, icon, disabled }: { to: string; icon: React.ReactNode; disabled?: boolean }) {
+function RailItem({ to, icon, disabled }: { to: string; icon: ReactNode; disabled?: boolean }) {
     const base = "w-10 h-10 rounded-[14px] border border-white/10 bg-white/[0.05] flex items-center justify-center shrink-0";
     if (disabled) return <div className={cn(base, "opacity-40")}>{icon}</div>;
     return (
@@ -27,7 +27,7 @@ export default function Layout() {
     const loc = useLocation();
 
     // Guard: если не авторизован или не прошёл onboarding — отправляем на /auth
-    React.useEffect(() => {
+    useEffect(() => {
         if (loc.pathname === "/auth") return;
         if (!isAuthed || !isReady) nav("/auth", { replace: true });
     }, [isAuthed, isReady, loc.pathname, nav]);

@@ -1,4 +1,3 @@
-import React from "react";
 import { Button, Card, Panel } from "../components/ui";
 
 type N = { id: string; title: string; body: string; time: string; type: "alert" | "success" | "promo" };

@@ -1,4 +1,4 @@
-import React from "react";
+import { useEffect, useState } from "react";
 import { Button, Card, Panel, Progress } from "../components/ui";
 
 type SyncTask = {
@@ -17,12 +17,12 @@ const initial: SyncTask[] = [
 ];
 
 export default function Downloads() {
-    const [items, setItems] = React.useState<SyncTask[]>(initial);
+    const [items, setItems] = useState<SyncTask[]>(initial);
 
-    React.useEffect(() => {
+    useEffect(() => {
         const t = setInterval(() => {
             setItems(prev => {
-                const nextItems = prev.map(it => {
+                const nextItems: SyncTask[] = prev.map((it): SyncTask => {
                     if (it.state !== "syncing") return it;
                     const add = Math.max(0.5, it.speed / 10);
                     const next = Math.min(100, it.progress + add);

@@ -11,8 +11,19 @@ export interface AppDeal {
     bestPriceUSD: string;
 }
 
+type DealsCache = Record<string, AppDeal[]>;
+
 const USD_TO_KZT = 450;
 const CACHE_KEY = 'qf_search_cache_v2';
+
+function readDealsCache(): DealsCache {
+    try {
+        const rawCache = localStorage.getItem(CACHE_KEY);
+        return rawCache ? (JSON.parse(rawCache) as DealsCache) : {};
+    } catch {
+        return {};
+    }
+}
 
 export function useDeals(searchQuery: string) {
     const [deals, setDeals] = useState<AppDeal[]>([]);
@@ -52,7 +63,7 @@ export function useDeals(searchQuery: string) {
 
                     setDeals(formattedDeals);
 
-                    const existingCache = JSON.parse(localStorage.getItem(CACHE_KEY) || '{}');
+                    const existingCache = readDealsCache();
                     existingCache[normalizedQuery] = formattedDeals;
                     localStorage.setItem(CACHE_KEY, JSON.stringify(existingCache));
                 }
@@ -61,10 +72,10 @@ export function useDeals(searchQuery: string) {
                 if (isMounted) {
                     setApiStatus("fallback");
 
-                    const cachedData = JSON.parse(localStorage.getItem(CACHE_KEY) || '{}');
+                    const cachedData = readDealsCache();
 
                     let allCachedGames: AppDeal[] = [];
-                    Object.values(cachedData).forEach((gamesArray: any) => {
+                    Object.values(cachedData).forEach((gamesArray) => {
                         allCachedGames = [...allCachedGames, ...gamesArray];
                     });
 

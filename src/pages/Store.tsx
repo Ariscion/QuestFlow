@@ -1,8 +1,6 @@
-import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Card, Panel, Pill, Skeleton } from "../components/ui";
 import { useDeals } from "../hooks/useDeals";
-import { useUserStore } from "../store/userStore";
 import { useApp } from "../app/store";
 import { useAnalytics } from "../hooks/useAnalytics";
 

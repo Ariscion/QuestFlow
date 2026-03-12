@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+/* eslint-disable react-refresh/only-export-components */
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { lsGet, lsSet } from "../lib/storage";
 
 export type Tier = "Free" | "Premium";
@@ -67,7 +68,7 @@ function uid() {
   return Math.random().toString(16).slice(2) + "-" + Date.now().toString(16);
 }
 
-export function AppProvider({ children }: { children: React.ReactNode }) {
+export function AppProvider({ children }: { children: ReactNode }) {
   const saved = typeof window !== "undefined" ? lsGet<AppState>(KEY) : null;
   const [state, setState] = useState<AppState>(saved ?? defaultState);
 

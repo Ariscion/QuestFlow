@@ -1,4 +1,3 @@
-import React from "react";
 import { Card, Panel, Skeleton, Button } from "../components/ui";
 
 export default function States() {

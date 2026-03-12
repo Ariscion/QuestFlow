@@ -1,11 +1,64 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button, Card, Panel, Pill, Skeleton } from "../components/ui";
+import type { Game as LibraryGame } from "../store/userStore";
 import { useUserStore } from "../store/userStore";
 import { useAnalytics } from "../hooks/useAnalytics";
 import { STORE_NAMES } from "../services/cheapSharkApi";
 
 const USD_TO_KZT = 450;
+
+interface CheapSharkGameDeal {
+  dealID: string;
+  storeID: string;
+  price: string;
+  retailPrice: string;
+  savings: string;
+}
+
+interface CheapSharkGameInfo {
+  title: string;
+  steamAppID: string | null;
+  thumb: string;
+}
+
+interface CheapSharkGameDetails {
+  info: CheapSharkGameInfo;
+  deals: CheapSharkGameDeal[];
+  cheapestPriceEver?: {
+    price: string;
+  };
+}
+
+interface SteamGenre {
+  id: number;
+  description: string;
+}
+
+interface SteamScreenshot {
+  id: number;
+  path_thumbnail: string;
+}
+
+interface SteamAppDetails {
+  short_description?: string;
+  background?: string;
+  genres?: SteamGenre[];
+  screenshots?: SteamScreenshot[];
+}
+
+interface SteamAppDetailsResult {
+  success: boolean;
+  data: SteamAppDetails;
+}
+
+type SteamAppDetailsResponse = Record<string, SteamAppDetailsResult>;
+
+interface GamePageState {
+  requestedId: string | null;
+  csGame: CheapSharkGameDetails | null;
+  steamDetails: SteamAppDetails | null;
+}
 
 export default function Game() {
   const { id } = useParams<{ id: string }>(); // Это теперь ID игры из CheapShark
@@ -15,53 +68,83 @@ export default function Game() {
   const buyGame = useUserStore((s) => s.buyGame);
   const library = useUserStore((s) => s.library);
 
-  // Стейты для API
-  const [csGame, setCsGame] = useState<any>(null); // Данные от CheapShark
-  const [steamDetails, setSteamDetails] = useState<any>(null); // Данные от Steam
-  const [loading, setLoading] = useState(true);
+  const [gameState, setGameState] = useState<GamePageState>({
+    requestedId: null,
+    csGame: null,
+    steamDetails: null,
+  });
 
   const isOwned = library.some(g => g.id === id);
+  const loading = Boolean(id) && gameState.requestedId !== id;
+  const csGame = gameState.requestedId === id ? gameState.csGame : null;
+  const steamDetails = gameState.requestedId === id ? gameState.steamDetails : null;
 
   useEffect(() => {
     if (!id) return;
 
     let isMounted = true;
-    setLoading(true);
 
-    // 1. Идем в CheapShark за инфой об игре и ВСЕМИ скидками на неё
-    fetch(`https://www.cheapshark.com/api/1.0/games?id=${id}`)
-        .then(res => res.json())
-        .then(data => {
-          if (!isMounted) return;
-          setCsGame(data);
+    const fetchGameDetails = async () => {
+      try {
+        // 1. Идем в CheapShark за инфой об игре и ВСЕМИ скидками на неё
+        const gameResponse = await fetch(`https://www.cheapshark.com/api/1.0/games?id=${id}`);
+        if (!gameResponse.ok) {
+          throw new Error("CheapShark response was not ok");
+        }
 
-          // 2. Если есть Steam ID, тянем картинки и описание оттуда
-          if (data.info.steamAppID) {
-            fetch(`/api/steam/appdetails?appids=${data.info.steamAppID}&l=russian`)
-                .then(res => res.json())
-                .then(steamData => {
-                  if (isMounted && steamData[data.info.steamAppID]?.success) {
-                    setSteamDetails(steamData[data.info.steamAppID].data);
-                  }
-                })
-                .catch(err => console.error("Ошибка Steam API:", err));
+        const gameData = await gameResponse.json() as CheapSharkGameDetails;
+        let nextSteamDetails: SteamAppDetails | null = null;
+
+        // 2. Если есть Steam ID, тянем картинки и описание оттуда
+        if (gameData.info.steamAppID) {
+          try {
+            const steamResponse = await fetch(`/api/steam/appdetails?appids=${gameData.info.steamAppID}&l=russian`);
+            if (steamResponse.ok) {
+              const steamData = await steamResponse.json() as SteamAppDetailsResponse;
+              if (steamData[gameData.info.steamAppID]?.success) {
+                nextSteamDetails = steamData[gameData.info.steamAppID].data;
+              }
+            }
+          } catch (error) {
+            console.error("Ошибка Steam API:", error);
           }
-        })
-        .catch(err => console.error("Ошибка CheapShark API:", err))
-        .finally(() => {
-          if (isMounted) setLoading(false);
+        }
+
+        if (!isMounted) return;
+
+        setGameState({
+          requestedId: id,
+          csGame: gameData,
+          steamDetails: nextSteamDetails,
         });
+      } catch (error) {
+        console.error("Ошибка CheapShark API:", error);
+        if (!isMounted) return;
+
+        setGameState({
+          requestedId: id,
+          csGame: null,
+          steamDetails: null,
+        });
+      }
+    };
+
+    void fetchGameDetails();
 
     return () => { isMounted = false; };
   }, [id]);
 
-  const handleCpaSync = (deal: any) => {
+  const handleCpaSync = (deal: CheapSharkGameDeal) => {
+    if (!id || !csGame) {
+      return;
+    }
+
     const storeName = STORE_NAMES[deal.storeID] || `Store #${deal.storeID}`;
     const kztPrice = Math.round(parseFloat(deal.price) * USD_TO_KZT);
 
     // 1. Синхронизируем игру в нашу Библиотеку (денег не берем)
-    const gameToSync = {
-      id: id!,
+    const gameToSync: LibraryGame = {
+      id,
       title: csGame.info.title,
       image: csGame.info.thumb,
       steamPrice: deal.price,
@@ -120,7 +203,7 @@ export default function Game() {
               </Button>
               <h1 className="text-5xl font-black text-white drop-shadow-xl">{csGame.info.title}</h1>
               <div className="flex gap-3 mt-4 items-center">
-                {steamDetails?.genres?.slice(0, 3).map((g: any) => (
+                {steamDetails?.genres?.slice(0, 3).map((g) => (
                     <Pill key={g.id} className="bg-white/10 text-white/80 border-white/20 backdrop-blur-md">
                       {g.description}
                     </Pill>
@@ -151,7 +234,7 @@ export default function Game() {
                 <div>
                   <h3 className="text-lg font-bold text-white/90 mb-4">Скриншоты</h3>
                   <div className="grid grid-cols-2 gap-4">
-                    {steamDetails.screenshots.slice(0, 4).map((shot: any) => (
+                    {steamDetails.screenshots.slice(0, 4).map((shot) => (
                         <img
                             key={shot.id}
                             src={shot.path_thumbnail}
@@ -181,7 +264,7 @@ export default function Game() {
               ) : (
                   <div className="flex flex-col gap-3">
                     {/* Выводим все доступные магазины, где есть эта игра */}
-                    {csGame.deals.map((deal: any) => {
+                    {csGame.deals.map((deal) => {
                       const storeName = STORE_NAMES[deal.storeID] || `Store #${deal.storeID}`;
                       const kztPrice = Math.round(parseFloat(deal.price) * USD_TO_KZT);
                       const isDiscount = parseFloat(deal.savings) > 0;
