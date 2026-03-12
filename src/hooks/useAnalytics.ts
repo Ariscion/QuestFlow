@@ -1,5 +1,5 @@
-import { useCallback, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useCallback, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 type AnalyticsPayload = Record<string, unknown>;
 
@@ -11,7 +11,7 @@ interface AnalyticsEvent {
     data?: AnalyticsPayload;
 }
 
-const ANALYTICS_STORAGE_KEY = 'qf_analytics_logs';
+const ANALYTICS_STORAGE_KEY = "qf_analytics_logs";
 
 function getStoredAnalyticsLogs(): AnalyticsEvent[] {
     try {
@@ -44,9 +44,9 @@ export function useAnalytics() {
             localStorage.setItem(ANALYTICS_STORAGE_KEY, JSON.stringify(existingLogs));
 
             // Выводим в консоль для удобства отладки (QA)
-            console.log(`📊 [Analytics] ${eventName}:`, data || '');
+            console.log(`📊 [Analytics] ${eventName}:`, data || "");
         } catch (error) {
-            console.error('Ошибка записи аналитики', error);
+            console.error("Ошибка записи аналитики", error);
         }
     }, [location.pathname]);
 
@@ -56,12 +56,12 @@ export function useAnalytics() {
         const currentPage = location.pathname;
 
         // Записываем событие "Вход на страницу"
-        trackEvent('PAGE_VIEW', { path: currentPage });
+        trackEvent("PAGE_VIEW", { path: currentPage });
 
         // Когда пользователь уходит со страницы (Component Unmount)
         return () => {
             const timeSpentSeconds = Math.round((Date.now() - startTime) / 1000);
-            trackEvent('TIME_ON_PAGE', {
+            trackEvent("TIME_ON_PAGE", {
                 path: currentPage,
                 durationSeconds: timeSpentSeconds
             });

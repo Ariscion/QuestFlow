@@ -1,12 +1,20 @@
 import { useEffect, type ReactNode } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useApp, useIsAuthed, useIsReady } from "../app/store";
-import { IconBell, IconDownloads, IconHome, IconSettings, IconStore, IconLibrary } from "./icons";
 import { cn } from "../lib/cn";
+import Search from "../pages/Search";
+import { IconBell, IconDownloads, IconHome, IconLibrary, IconSettings, IconStore } from "./icons";
 
-function RailItem({ to, icon, disabled }: { to: string; icon: ReactNode; disabled?: boolean }) {
+type RailItemProps = {
+    to: string;
+    icon: ReactNode;
+    disabled?: boolean;
+};
+
+function RailItem({ to, icon, disabled = false }: RailItemProps) {
     const base = "w-10 h-10 rounded-[14px] border border-white/10 bg-white/[0.05] flex items-center justify-center shrink-0";
     if (disabled) return <div className={cn(base, "opacity-40")}>{icon}</div>;
+
     return (
         <NavLink
             to={to}
@@ -32,7 +40,7 @@ export default function Layout() {
         if (!isAuthed || !isReady) nav("/auth", { replace: true });
     }, [isAuthed, isReady, loc.pathname, nav]);
 
-    const disabled = !isAuthed || !isReady;
+    const isNavigationDisabled = !isAuthed || !isReady;
 
     return (
         <div className="min-h-screen flex items-center justify-center p-6">
@@ -44,17 +52,18 @@ export default function Layout() {
                     </div>
 
                     <div className="mt-2 flex flex-col gap-3">
-                        <RailItem to="/home" disabled={disabled} icon={<IconHome className="w-5 h-5 text-white/70" />} />
-                        <RailItem to="/store" disabled={disabled} icon={<IconStore className="w-5 h-5 text-white/70" />} />
-                        <RailItem to="/library" disabled={disabled} icon={<IconLibrary className="w-5 h-5 text-white/70" />} />
-                        <RailItem to="/downloads" disabled={disabled} icon={<IconDownloads className="w-5 h-5 text-white/70" />} />
-                        <RailItem to="/notifications" disabled={disabled} icon={<IconBell className="w-5 h-5 text-white/70" />} />
-                        <RailItem to="/settings" disabled={disabled} icon={<IconSettings className="w-5 h-5 text-white/70" />} />
+                        <RailItem to="/home" disabled={isNavigationDisabled} icon={<IconHome className="w-5 h-5 text-white/70" />} />
+                        <RailItem to="/store" disabled={isNavigationDisabled} icon={<IconStore className="w-5 h-5 text-white/70" />} />
+                        <RailItem to="/library" disabled={isNavigationDisabled} icon={<IconLibrary className="w-5 h-5 text-white/70" />} />
+                        <RailItem to="/downloads" disabled={isNavigationDisabled} icon={<IconDownloads className="w-5 h-5 text-white/70" />} />
+                        <RailItem to="/notifications" disabled={isNavigationDisabled} icon={<IconBell className="w-5 h-5 text-white/70" />} />
+                        <RailItem to="/settings" disabled={isNavigationDisabled} icon={<IconSettings className="w-5 h-5 text-white/70" />} />
                     </div>
 
                     <div className="mt-auto w-full flex flex-col items-center gap-2">
                         <div className="text-[11px] text-white/40 text-center">{state.tier}</div>
                         <button
+                            type="button"
                             className={cn("qf-btn qf-btn-ghost w-full px-0", !isAuthed && "opacity-40")}
                             onClick={() => (isAuthed ? actions.signOut() : nav("/auth"))}
                         >
@@ -76,27 +85,14 @@ export default function Layout() {
 }
 
 function TopBar() {
-    const { state, actions } = useApp();
-    const nav = useNavigate();
-    const loc = useLocation();
-
     return (
         <div className="flex items-center justify-center shrink-0">
             <div className="w-[520px] max-w-[90%]">
-                <div className="qf-pill flex items-center gap-2">
-                    <span className="text-white/45 text-sm shrink-0">🔎</span>
-                    <input
-                        className="bg-transparent outline-none text-sm w-full text-white/80 placeholder:text-white/35"
-                        placeholder="Поиск игр (например, Witcher)..."
-                        value={state.search}
-                        onChange={(e) => actions.setSearch(e.target.value)}
-                        onKeyDown={(e) => {
-                            if (e.key === "Enter" && loc.pathname !== "/store") {
-                                nav("/store");
-                            }
-                        }}
-                    />
-                </div>
+                <Search
+                    className="max-w-none"
+                    inputClassName="rounded-full border-white/8 bg-transparent py-2 text-sm text-white/80 placeholder:text-white/35 shadow-none"
+                    placeholder="Поиск игр (например, Witcher)..."
+                />
             </div>
         </div>
     );

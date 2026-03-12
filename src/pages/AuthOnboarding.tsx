@@ -1,4 +1,4 @@
-import React from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -18,7 +18,7 @@ export default function AuthOnboarding() {
   const { state, actions } = useApp();
   const nav = useNavigate();
 
-  const [step, setStep] = React.useState<number>(state.onboardingDone ? 4 : 1);
+  const [step, setStep] = useState<number>(state.onboardingDone ? 4 : 1);
 
   const form = useForm<EmailForm>({
     resolver: zodResolver(EmailSchema),
@@ -190,7 +190,13 @@ export default function AuthOnboarding() {
   );
 }
 
-function ProviderButton({ label, hint, onClick }: { label: string; hint: string; onClick: () => void }) {
+type ProviderButtonProps = {
+  label: string;
+  hint: string;
+  onClick: () => void;
+};
+
+function ProviderButton({ label, hint, onClick }: ProviderButtonProps) {
   return (
     <button className="qf-pill w-full flex items-center gap-3 hover:bg-white/[0.10] transition" onClick={onClick} type="button">
       <div className="w-7 h-7 rounded-[12px] border border-white/10 bg-white/[0.06] flex items-center justify-center text-xs text-white/70">

@@ -1,5 +1,5 @@
-import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
 
 export interface Game {
     id: string;
@@ -34,7 +34,7 @@ export const useUserStore = create<UserState>()(
                 const { library } = get();
 
                 if (library.find(g => g.id === gameData.id)) {
-                    console.warn('Игра уже синхронизирована с библиотекой!');
+                    console.warn("Игра уже синхронизирована с библиотекой!");
                     return false;
                 }
 
@@ -74,7 +74,7 @@ export const useUserStore = create<UserState>()(
             })
         }),
         {
-            name: 'questflow-user-storage',
+            name: "questflow-user-storage",
             storage: createJSONStorage(() => localStorage),
         }
     )

@@ -1,19 +1,20 @@
-import React from "react";
+import type { ButtonHTMLAttributes, HTMLAttributes, InputHTMLAttributes } from "react";
+
 import { cn } from "../lib/cn";
 
-export function Panel({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+export function Panel({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return <div className={cn("qf-panel", className)} {...props} />;
 }
 
-export function Card({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+export function Card({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return <div className={cn("qf-card", className)} {...props} />;
 }
 
-export function Pill({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+export function Pill({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return <div className={cn("qf-pill", className)} {...props} />;
 }
 
-type BtnProps = React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary" | "soft" | "ghost" };
+type BtnProps = ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary" | "soft" | "ghost" };
 
 export function Button({ className, variant = "soft", ...props }: BtnProps) {
   const v =
@@ -23,7 +24,7 @@ export function Button({ className, variant = "soft", ...props }: BtnProps) {
   return <button className={cn(v, className)} {...props} />;
 }
 
-export function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
+export function Input(props: InputHTMLAttributes<HTMLInputElement>) {
   return <input className="qf-input" {...props} />;
 }
 

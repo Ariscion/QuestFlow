@@ -1,18 +1,22 @@
-import React from "react";
+import type { ReactNode } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { AppProvider, useIsReady } from "./app/store";
 import Layout from "./components/Layout";
 import AuthOnboarding from "./pages/AuthOnboarding";
-import Home from "./pages/Home";
-import Game from "./pages/Game";
 import Downloads from "./pages/Downloads";
+import Game from "./pages/Game";
+import Home from "./pages/Home";
+import Library from "./pages/Library";
 import Notifications from "./pages/Notifications";
 import Settings from "./pages/Settings";
 import States from "./pages/States";
 import Store from "./pages/Store";
-import Library from "./pages/Library";
 
-function Protected({ children }: { children: React.ReactNode }) {
+type ProtectedProps = {
+  children: ReactNode;
+};
+
+function Protected({ children }: ProtectedProps) {
   const ready = useIsReady();
   return ready ? <>{children}</> : <Navigate to="/auth" replace />;
 }

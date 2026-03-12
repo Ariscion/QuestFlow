@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 import { Button, Card, Panel, Progress } from "../components/ui";
 
+type SyncTaskState = "syncing" | "paused" | "done";
+
 type SyncTask = {
     id: string;
     title: string;
     totalItems: number;
     speed: number;
     progress: number;
-    state: "syncing" | "paused" | "done"
+    state: SyncTaskState;
 };
 
 const initial: SyncTask[] = [
@@ -20,33 +22,70 @@ export default function Downloads() {
     const [items, setItems] = useState<SyncTask[]>(initial);
 
     useEffect(() => {
-        const t = setInterval(() => {
+        const intervalId = window.setInterval(() => {
             setItems(prev => {
-                const nextItems: SyncTask[] = prev.map((it): SyncTask => {
-                    if (it.state !== "syncing") return it;
-                    const add = Math.max(0.5, it.speed / 10);
-                    const next = Math.min(100, it.progress + add);
-                    return { ...it, progress: next, state: next >= 100 ? "done" : "syncing" };
+                const nextItems = prev.map(item => {
+                    if (item.state !== "syncing") {
+                        return item;
+                    }
+
+                    const progressStep = Math.max(0.5, item.speed / 10);
+                    const nextProgress = Math.min(100, item.progress + progressStep);
+
+                    return {
+                        ...item,
+                        progress: nextProgress,
+                        state: nextProgress >= 100 ? "done" : "syncing",
+                    } satisfies SyncTask;
                 });
 
-                // QA Фикс: Если все задачи завершены - убиваем таймер, чтобы не грузить процессор
-                if (nextItems.every(it => it.state === "done")) {
-                    clearInterval(t);
+                if (nextItems.every(item => item.state === "done")) {
+                    window.clearInterval(intervalId);
                 }
 
                 return nextItems;
             });
         }, 500);
-        return () => clearInterval(t);
+
+        return () => window.clearInterval(intervalId);
     }, []);
 
     function toggle(id: string) {
-        setItems(prev => prev.map(it => {
-            if (it.id !== id) return it;
-            if (it.state === "done") return it;
-            return { ...it, state: it.state === "paused" ? "syncing" : "paused" };
+        setItems(prev => prev.map(item => {
+            if (item.id !== id || item.state === "done") {
+                return item;
+            }
+
+            return {
+                ...item,
+                state: item.state === "paused" ? "syncing" : "paused",
+            };
         }));
     }
+
+    const getStatusLabel = (task: SyncTask) => {
+        if (task.state === "done") {
+            return "Синхронизировано";
+        }
+
+        if (task.state === "paused") {
+            return "Пауза";
+        }
+
+        return `Обработка: ${task.speed.toFixed(1)} игр/сек`;
+    };
+
+    const getActionLabel = (state: SyncTaskState) => {
+        if (state === "paused") {
+            return "Возобновить";
+        }
+
+        if (state === "syncing") {
+            return "Пауза";
+        }
+
+        return "Готово";
+    };
 
     return (
         <div className="h-full flex flex-col gap-5">
@@ -63,7 +102,7 @@ export default function Downloads() {
                                         {it.title}
                                     </div>
                                     <div className="text-[11px] text-white/45 mt-1">
-                                        {it.state === "done" ? "Синхронизировано" : it.state === "paused" ? "Пауза" : `Обработка: ${it.speed.toFixed(1)} игр/сек`}
+                                        {getStatusLabel(it)}
                                     </div>
                                 </div>
 
@@ -73,7 +112,7 @@ export default function Downloads() {
                                     disabled={it.state === "done"}
                                     className={it.state === "paused" ? "bg-blue-600 hover:bg-blue-500" : ""}
                                 >
-                                    {it.state === "paused" ? "Возобновить" : it.state === "syncing" ? "Пауза" : "Готово"}
+                                    {getActionLabel(it.state)}
                                 </Button>
                             </div>
 

@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
-import { CheapSharkAPI } from '../services/cheapSharkApi';
-import type { CheapSharkGame } from '../services/cheapSharkApi';
+import { useEffect, useState } from "react";
+
+import { CheapSharkAPI } from "../services/cheapSharkApi";
+import type { CheapSharkGame } from "../services/cheapSharkApi";
 
 export interface AppDeal {
     id: string;
@@ -14,7 +15,7 @@ export interface AppDeal {
 type DealsCache = Record<string, AppDeal[]>;
 
 const USD_TO_KZT = 450;
-const CACHE_KEY = 'qf_search_cache_v2';
+const CACHE_KEY = "qf_search_cache_v2";
 
 function readDealsCache(): DealsCache {
     try {
