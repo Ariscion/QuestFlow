@@ -2,6 +2,7 @@ import { useEffect, type ReactNode } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useApp, useIsAuthed, useIsReady } from "../app/store";
 import { cn } from "../lib/cn";
+import { logoutUser } from "../lib/firebase";
 import Search from "../pages/Search";
 import { IconBell, IconDownloads, IconHome, IconLibrary, IconSettings, IconStore } from "./icons";
 
@@ -42,6 +43,16 @@ export default function Layout() {
 
     const isNavigationDisabled = !isAuthed || !isReady;
 
+    async function handleLogout() {
+        try {
+            await logoutUser();
+            actions.signOut();
+            nav("/auth");
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
     return (
         <div className="min-h-screen flex items-center justify-center p-6">
             <div className="qf-frame w-[1180px] max-w-[96vw] h-[720px] max-h-[92vh] flex">
@@ -65,7 +76,7 @@ export default function Layout() {
                         <button
                             type="button"
                             className={cn("qf-btn qf-btn-ghost w-full px-0", !isAuthed && "opacity-40")}
-                            onClick={() => (isAuthed ? actions.signOut() : nav("/auth"))}
+                            onClick={() => (isAuthed ? handleLogout() : nav("/auth"))}
                         >
                             {isAuthed ? "Выход" : "Войти"}
                         </button>

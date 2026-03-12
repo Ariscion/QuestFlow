@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Card, Input, Panel, Pill, Progress } from "../components/ui";
 import { useApp } from "../app/store";
 import { cn } from "../lib/cn";
+import { loginWithGoogle } from "../lib/firebase";
 
 const EmailSchema = z.object({
   email: z.string().email("Email выглядит неверно"),
@@ -40,6 +41,15 @@ export default function AuthOnboarding() {
     nav("/home");
   }
 
+  async function handleGoogleLogin() {
+    try {
+      await loginWithGoogle();
+      setStep(4);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   const steps = [
     { n: 1, label: "Create profile" },
     { n: 2, label: "Choose game folders" },
@@ -63,7 +73,7 @@ export default function AuthOnboarding() {
           <div className="mt-4 space-y-3">
             <ProviderButton label="Continue with Steam" hint="S" onClick={() => actions.signInProvider("steam")} />
             <ProviderButton label="Continue with Epic" hint="E" onClick={() => actions.signInProvider("epic")} />
-            <ProviderButton label="Continue with Email" hint="@" onClick={() => { /* just focus form */ }} />
+            <ProviderButton label="Continue with Google" hint="G" onClick={handleGoogleLogin} />
           </div>
         </div>
 

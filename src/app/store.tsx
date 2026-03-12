@@ -3,13 +3,14 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 import { lsGet, lsSet } from "../lib/storage";
 
 export type Tier = "Free" | "Premium";
-export type Provider = "email" | "steam" | "epic";
+export type Provider = "email" | "steam" | "epic" | "Google";
 
 export type User = {
-  id: string;
+  uid: string;
   name: string;
   provider: Provider;
-  email?: string;
+  email?: string | null;
+  avatar?: string | null;
 };
 
 export type Folder = {
@@ -33,6 +34,7 @@ export type AppActions = {
   signInProvider: (provider: Provider) => void;
   signInEmail: (email: string) => void;
   signOut: () => void;
+  setUser: (user?: User) => void;
 
   setTier: (tier: Tier) => void;
   setOnboardingDone: (done: boolean) => void;
@@ -68,9 +70,42 @@ function uid() {
   return Math.random().toString(16).slice(2) + "-" + Date.now().toString(16);
 }
 
+function normalizeUser(user: unknown): User | null {
+  if (!user || typeof user !== "object") {
+    return null;
+  }
+
+  const candidate = user as Partial<User> & { id?: string };
+  const nextUid = candidate.uid ?? candidate.id;
+
+  if (!nextUid || typeof nextUid !== "string") {
+    return null;
+  }
+
+  return {
+    uid: nextUid,
+    name: typeof candidate.name === "string" && candidate.name.trim() ? candidate.name : "User",
+    provider: (candidate.provider as Provider | undefined) ?? "email",
+    email: typeof candidate.email === "string" ? candidate.email : null,
+    avatar: typeof candidate.avatar === "string" ? candidate.avatar : null,
+  };
+}
+
+function normalizeState(state: AppState | null): AppState {
+  if (!state) {
+    return defaultState;
+  }
+
+  return {
+    ...defaultState,
+    ...state,
+    user: normalizeUser(state.user),
+  };
+}
+
 export function AppProvider({ children }: { children: ReactNode }) {
   const saved = typeof window !== "undefined" ? lsGet<AppState>(KEY) : null;
-  const [state, setState] = useState<AppState>(saved ?? defaultState);
+  const [state, setState] = useState<AppState>(() => normalizeState(saved));
 
   useEffect(() => {
     lsSet(KEY, state);
@@ -81,9 +116,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setState(s => ({
         ...s,
         user: {
-          id: uid(),
+          uid: uid(),
           name: "User",
           provider,
+          email: null,
+          avatar: null,
         },
       }));
     },
@@ -91,10 +128,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setState(s => ({
         ...s,
         user: {
-          id: uid(),
+          uid: uid(),
           name: email.split("@")[0] || "User",
           provider: "email",
           email,
+          avatar: null,
         },
       }));
     },
@@ -103,6 +141,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
         ...s,
         user: null,
         onboardingDone: false,
+      }));
+    },
+    setUser(user) {
+      setState(s => ({
+        ...s,
+        user: user ?? null,
       }));
     },
     setTier(tier) {
