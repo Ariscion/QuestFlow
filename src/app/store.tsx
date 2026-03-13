@@ -24,6 +24,9 @@ export type AppState = {
   tier: Tier;
   onboardingDone: boolean;
 
+  glassIntensity: number;
+  motionEnabled: boolean;
+
   installLocation: string;
   folders: Folder[];
 
@@ -39,6 +42,8 @@ export type AppActions = {
   setTier: (tier: Tier) => void;
   setReady: (ready: boolean) => void;
   setOnboardingDone: (done: boolean) => void;
+  setGlassIntensity: (val: number) => void;
+  setMotionEnabled: (val: boolean) => void;
 
   setInstallLocation: (path: string) => void;
   toggleFolder: (id: string) => void;
@@ -54,6 +59,9 @@ const defaultState: AppState = {
   user: null,
   tier: "Free",
   onboardingDone: false,
+
+  glassIntensity: 20,
+  motionEnabled: true,
 
   installLocation: "D:\\Games\\QuestFlow Library",
   folders: [
@@ -158,6 +166,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     },
     setOnboardingDone(done) {
       setState(s => ({ ...s, onboardingDone: done }));
+    },
+    setGlassIntensity(val) {
+      setState(s => ({ ...s, glassIntensity: val }));
+    },
+    setMotionEnabled(val) {
+      setState(s => ({ ...s, motionEnabled: val }));
     },
     setInstallLocation(path) {
       setState(s => ({ ...s, installLocation: path }));

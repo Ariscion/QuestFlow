@@ -1,23 +1,34 @@
-import { useState, useEffect } from "react";
-import { Button, Card, Panel } from "../components/ui";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button, Card, Panel, Progress } from "../components/ui";
 import { useApp } from "../app/store";
+import { logoutUser } from "../lib/firebase";
+import { useUserStore } from "../store/userStore";
+
+type CurrencyState = { currency?: string };
+type CurrencyActions = { setCurrency?: (currency: string) => void };
 
 export default function Settings() {
   const { state, actions } = useApp();
-  const [cleared, setCleared] = useState(false);
+  const nav = useNavigate();
+  const { userLevel, userXP, xpToNextLevel } = useUserStore();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  // Состояния для настроек внешнего вида
-  const [glassIntensity, setGlassIntensity] = useState(55);
-  const [motionEnabled, setMotionEnabled] = useState(true);
+  const xpProgress = useMemo(() => {
+    if (xpToNextLevel <= 0) return 0;
+    return Math.max(0, Math.min(100, (userXP / xpToNextLevel) * 100));
+  }, [userXP, xpToNextLevel]);
 
-  // 1. Применяем CSS-переменную при изменении ползунка (размытие)
+  const appStateWithCurrency = state as typeof state & CurrencyState;
+  const appActionsWithCurrency = actions as typeof actions & CurrencyActions;
+  const hasCurrencyControl = typeof appStateWithCurrency.currency === "string" && typeof appActionsWithCurrency.setCurrency === "function";
+
   useEffect(() => {
-    document.documentElement.style.setProperty('--glass-opacity', `${glassIntensity / 100}`);
-  }, [glassIntensity]);
+    document.documentElement.style.setProperty("--glass-opacity", `${state.glassIntensity / 100}`);
+  }, [state.glassIntensity]);
 
-  // 2. Реальное отключение анимаций (Accessibility Feature)
   useEffect(() => {
-    if (motionEnabled) {
+    if (state.motionEnabled) {
       document.body.classList.remove('disable-motion');
     } else {
       document.body.classList.add('disable-motion');
@@ -27,7 +38,7 @@ export default function Settings() {
     const styleId = 'qf-motion-control';
     let styleEl = document.getElementById(styleId);
 
-    if (!motionEnabled && !styleEl) {
+    if (!state.motionEnabled && !styleEl) {
       styleEl = document.createElement('style');
       styleEl.id = styleId;
       styleEl.innerHTML = `
@@ -37,126 +48,141 @@ export default function Settings() {
             }
         `;
       document.head.appendChild(styleEl);
-    } else if (motionEnabled && styleEl) {
+    } else if (state.motionEnabled && styleEl) {
       styleEl.remove();
     }
-  }, [motionEnabled]);
+  }, [state.motionEnabled]);
 
-  // QA-функции
-  const handleClearCache = () => {
-    localStorage.removeItem('qf_search_cache_v2');
-    setCleared(true);
-    setTimeout(() => setCleared(false), 3000);
-  };
+  const handleClearCacheAndLogout = async () => {
+    if (isLoggingOut) return;
 
-  const handleClearAnalytics = () => {
-    const logs = JSON.parse(localStorage.getItem('qf_analytics_logs') || '[]');
-    console.table(logs);
-    alert(`В кэше ${logs.length} событий аналитики.\nОткройте Console (F12) в браузере для просмотра!`);
+    setIsLoggingOut(true);
+    try {
+      await logoutUser();
+      localStorage.removeItem("qf_search_cache_v2");
+      localStorage.removeItem("qf_analytics_logs");
+      localStorage.removeItem("questflow-user-storage");
+      localStorage.removeItem("qf_demo_state_v1");
+      actions.signOut();
+      nav("/auth", { replace: true });
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } finally {
+      setIsLoggingOut(false);
+    }
   };
 
   return (
-      <div className="h-full flex flex-col gap-5 overflow-hidden">
-        <div className="text-sm text-white/65 font-semibold">Настройки и QA Инструменты</div>
+    <div className="h-full flex flex-col gap-5 overflow-y-auto pr-1">
+      <div className="text-sm text-white/65 font-semibold">Настройки профиля и интерфейса</div>
 
-        <Panel className="p-6 grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-6 bg-black/20 flex-1 overflow-y-auto">
-
-          {/* ЛЕВАЯ КОЛОНКА: Аккаунт */}
-          <div className="space-y-4">
-            <Card className="p-4 bg-white/[0.02] border-white/5">
-              <div className="text-xs text-white/45 uppercase font-bold tracking-wider">Аккаунт</div>
-              <div className="text-sm text-white/80 font-semibold mt-1">{state.user?.name ?? "Ariscion"}</div>
-              <div className="text-[11px] text-white/45 mt-1">{state.user?.provider ?? "QuestFlow ID"}</div>
-            </Card>
-
-            <Card className="p-4 bg-white/[0.02] border-white/5">
-              <div className="text-xs text-white/45 uppercase font-bold tracking-wider">Уровень подписки</div>
-              <div className="mt-3 flex gap-2">
-                <Button variant={state.tier === "Free" ? "primary" : "soft"} onClick={() => actions.setTier("Free")} className={state.tier === "Free" ? "bg-blue-600" : ""}>Free</Button>
-                <Button variant={state.tier === "Premium" ? "primary" : "soft"} onClick={() => actions.setTier("Premium")} className={state.tier === "Premium" ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white border-none" : ""}>Premium</Button>
+      <Panel className="p-6 bg-black/20 border-white/10">
+        <div className="text-xs text-white/45 uppercase font-bold tracking-wider mb-4">Профиль</div>
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-4">
+          <Card className="p-4 bg-white/[0.02] border-white/5 flex items-center gap-4">
+            {state.user?.avatar ? (
+              <img
+                src={state.user.avatar}
+                alt="Profile"
+                className="w-16 h-16 shrink-0 rounded-[18px] border border-white/10 object-cover shadow-inner"
+              />
+            ) : (
+              <div className="w-16 h-16 shrink-0 rounded-[18px] border border-white/10 bg-gradient-to-br from-blue-600/20 to-cyan-600/10 flex items-center justify-center text-white/90 font-bold shadow-inner">
+                QF
               </div>
-            </Card>
+            )}
+
+            <div className="min-w-0">
+              <div className="text-base text-white/90 font-semibold truncate">{state.user?.name ?? "Гость"}</div>
+              <div className="text-sm text-white/60 truncate">{state.user?.email ?? "Email не указан"}</div>
+            </div>
+          </Card>
+
+          <Card className="p-4 bg-white/[0.02] border-white/5">
+            <div className="flex items-center justify-between text-sm text-white/80">
+              <span>Уровень</span>
+              <span className="font-bold text-blue-300">{userLevel}</span>
+            </div>
+            <div className="mt-3">
+              <Progress value={xpProgress} />
+            </div>
+            <div className="mt-2 text-xs text-white/55">
+              XP: {userXP} / {xpToNextLevel}
+            </div>
+          </Card>
+        </div>
+      </Panel>
+
+      <Panel className="p-6 bg-black/20 border-white/10">
+        <div className="text-xs text-white/45 uppercase font-bold tracking-wider mb-4">Интерфейс</div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card className="p-4 bg-white/[0.02] border-white/5">
+            <div className="flex items-center justify-between">
+              <div className="text-xs text-white/45">Прозрачность стекла</div>
+              <div className="text-xs text-blue-300 font-bold">{state.glassIntensity}%</div>
+            </div>
+            <div className="mt-3">
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={state.glassIntensity}
+                onChange={(e) => actions.setGlassIntensity(Number(e.target.value))}
+                className="w-full accent-blue-500"
+              />
+            </div>
+          </Card>
+
+          <Card className="p-4 bg-white/[0.02] border-white/5">
+            <div className="text-xs text-white/45">Motion (Анимации)</div>
+            <div className="mt-3 flex items-center justify-between">
+              <span className="text-xs text-white/65">Плавные переходы UI</span>
+              <input
+                type="checkbox"
+                checked={state.motionEnabled}
+                onChange={(e) => actions.setMotionEnabled(e.target.checked)}
+                className="accent-blue-500 w-4 h-4 cursor-pointer"
+              />
+            </div>
+          </Card>
+
+          <Card className="p-4 bg-white/[0.02] border-white/5">
+            <div className="text-xs text-white/45">Валюта</div>
+            <div className="mt-3">
+              {hasCurrencyControl ? (
+                <select
+                  value={appStateWithCurrency.currency}
+                  onChange={(e) => appActionsWithCurrency.setCurrency?.(e.target.value)}
+                  className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white/80 outline-none"
+                >
+                  <option value="KZT">KZT</option>
+                  <option value="USD">USD</option>
+                  <option value="EUR">EUR</option>
+                </select>
+              ) : (
+                <div className="text-sm text-white/65">Сейчас используется базовая валюта сервиса.</div>
+              )}
+            </div>
+          </Card>
+        </div>
+      </Panel>
+
+      <Panel className="p-6 bg-black/20 border-white/10">
+        <div className="text-xs text-white/45 uppercase font-bold tracking-wider mb-4">Данные</div>
+        <Card className="p-4 bg-white/[0.02] border-white/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <div className="text-sm text-white/80 font-bold">Очистить кэш и выйти</div>
+            <div className="text-xs text-white/50 mt-1">Удаляет локальные кэши и завершает сессию аккаунта.</div>
           </div>
-
-          {/* ПРАВАЯ КОЛОНКА: Визуал и Данные */}
-          <Panel className="p-6 bg-white/[0.01] border-white/5">
-            <div className="text-sm text-white/75 font-semibold mb-4">Внешний вид (Appearance)</div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-              <Card className="p-4 bg-white/[0.02] border-white/5">
-                <div className="flex justify-between items-center mb-3">
-                  <div className="text-xs text-white/45">Glass intensity (Размытие)</div>
-                  <div className="text-xs text-blue-400 font-bold">{glassIntensity}%</div>
-                </div>
-                <div>
-                  <input
-                      type="range"
-                      min={0}
-                      max={100}
-                      value={glassIntensity}
-                      onChange={(e) => setGlassIntensity(Number(e.target.value))}
-                      className="w-full accent-blue-500"
-                  />
-                </div>
-              </Card>
-
-              <Card className="p-4 bg-white/[0.02] border-white/5">
-                <div className="text-xs text-white/45">Motion (Анимации)</div>
-                <div className="mt-3 flex items-center justify-between">
-                  <span className="text-xs text-white/65">Плавные переходы UI</span>
-                  <input
-                      type="checkbox"
-                      checked={motionEnabled}
-                      onChange={(e) => setMotionEnabled(e.target.checked)}
-                      className="accent-blue-500 w-4 h-4 cursor-pointer"
-                  />
-                </div>
-              </Card>
-            </div>
-
-            <div className="text-sm text-white/75 font-semibold mb-4 flex items-center gap-2">
-              <span className="text-blue-400">⚙️</span> QA & Developer Tools
-            </div>
-            <div className="grid grid-cols-1 gap-4">
-              <Card className="p-4 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white/[0.02] border-white/5">
-                <div>
-                  <div className="text-sm text-white/80 font-bold">Кэш API (Offline Mode)</div>
-                  <div className="text-xs text-white/50 mt-1 max-w-md">Удаляет сохраненные запросы. Полезно для тестирования поведения при отсутствии сети.</div>
-                </div>
-                <Button
-                    onClick={handleClearCache}
-                    className={`shrink-0 transition-colors ${cleared ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400 hover:bg-red-500/40'}`}
-                >
-                  {cleared ? '✓ Очищено' : 'Очистить кэш API'}
-                </Button>
-              </Card>
-
-              <Card className="p-4 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white/[0.02] border-white/5">
-                <div>
-                  <div className="text-sm text-white/80 font-bold">Веб-Аналитика</div>
-                  <div className="text-xs text-white/50 mt-1 max-w-md">Выгрузка локальных логов кликов (CTR) и переходов для отчета по Веб-Аналитике.</div>
-                </div>
-                <Button variant="soft" onClick={handleClearAnalytics} className="shrink-0 bg-blue-500/20 text-blue-400 hover:bg-blue-500/40">
-                  Вывести логи (F12)
-                </Button>
-              </Card>
-
-              <Card className="p-4 flex items-center justify-between gap-3 bg-white/[0.02] border-white/5">
-                <div className="text-xs text-white/65">Сбросить состояние аккаунта (localStorage)</div>
-                <Button
-                    variant="ghost"
-                    className="text-white/40 hover:text-white"
-                    onClick={() => {
-                      localStorage.clear();
-                      window.location.href = "/";
-                    }}
-                >
-                  Hard Reset
-                </Button>
-              </Card>
-            </div>
-          </Panel>
-
-        </Panel>
-      </div>
+          <Button
+            onClick={() => void handleClearCacheAndLogout()}
+            className="shrink-0 bg-red-500/20 text-red-300 hover:bg-red-500/35"
+            disabled={isLoggingOut}
+          >
+            {isLoggingOut ? "Выходим..." : "Очистить кэш и выйти"}
+          </Button>
+        </Card>
+      </Panel>
+    </div>
   );
 }

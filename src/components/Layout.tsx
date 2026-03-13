@@ -58,9 +58,17 @@ export default function Layout() {
             <div className="qf-frame w-[1180px] max-w-[96vw] h-[720px] max-h-[92vh] flex">
                 {/* Rail (Боковое меню) */}
                 <div className="w-[88px] p-4 flex flex-col items-center gap-3 border-r border-white/10 shrink-0">
-                    <div className="w-12 h-12 shrink-0 rounded-[16px] border border-white/10 bg-gradient-to-br from-blue-600/20 to-cyan-600/10 flex items-center justify-center text-white/90 font-bold shadow-inner">
-                        QF
-                    </div>
+                    {isAuthed && state.user?.avatar ? (
+                        <img
+                            src={state.user.avatar}
+                            alt="Profile"
+                            className="w-12 h-12 shrink-0 rounded-[16px] border border-white/10 object-cover shadow-inner"
+                        />
+                    ) : (
+                        <div className="w-12 h-12 shrink-0 rounded-[16px] border border-white/10 bg-gradient-to-br from-blue-600/20 to-cyan-600/10 flex items-center justify-center text-white/90 font-bold shadow-inner">
+                            QF
+                        </div>
+                    )}
 
                     <div className="mt-2 flex flex-col gap-3">
                         <RailItem to="/home" disabled={isNavigationDisabled} icon={<IconHome className="w-5 h-5 text-white/70" />} />

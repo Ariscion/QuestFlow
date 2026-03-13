@@ -26,12 +26,12 @@ export interface CheapSharkTopDeal {
 
 export const STORE_NAMES: Record<string, string> = {
     "1": "Steam",
-    "2": "GamersGate",
-    "3": "GreenManGaming",
     "7": "GOG",
-    "8": "Origin",
+    "8": "EA App",
     "11": "Humble Store",
-    "25": "Epic Games Store"
+    "13": "Ubisoft",
+    "25": "Epic Games",
+    "31": "Battle.net"
 };
 
 export const CheapSharkAPI = {

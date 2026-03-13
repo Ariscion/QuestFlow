@@ -139,7 +139,7 @@ export default function Game() {
       return;
     }
 
-    const storeName = STORE_NAMES[deal.storeID] || `Store #${deal.storeID}`;
+    const storeName = STORE_NAMES[deal.storeID];
     const kztPrice = Math.round(parseFloat(deal.price) * USD_TO_KZT);
 
     // 1. Синхронизируем игру в нашу Библиотеку (денег не берем)
@@ -264,31 +264,33 @@ export default function Game() {
               ) : (
                   <div className="flex flex-col gap-3">
                     {/* Выводим все доступные магазины, где есть эта игра */}
-                    {csGame.deals.map((deal) => {
-                      const storeName = STORE_NAMES[deal.storeID] || `Store #${deal.storeID}`;
-                      const kztPrice = Math.round(parseFloat(deal.price) * USD_TO_KZT);
-                      const isDiscount = parseFloat(deal.savings) > 0;
+                    {csGame.deals
+                      .filter((deal) => Boolean(STORE_NAMES[deal.storeID]))
+                      .map((deal) => {
+                        const storeName = STORE_NAMES[deal.storeID];
+                        const kztPrice = Math.round(parseFloat(deal.price) * USD_TO_KZT);
+                        const isDiscount = parseFloat(deal.savings) > 0;
 
-                      return (
-                          <Card key={deal.dealID} className="p-3 flex justify-between items-center bg-[#0a0f18]/80 hover:bg-white/[0.08] transition-colors border-white/10 group">
-                            <div>
-                              <div className="text-sm font-bold text-white/90">{storeName}</div>
-                              <div className="flex items-center gap-2 mt-1">
-                                {isDiscount && (
-                                    <span className="text-xs text-white/40 line-through">${deal.retailPrice}</span>
-                                )}
-                                <span className="text-lg font-black text-emerald-400">{kztPrice} ₸</span>
+                        return (
+                            <Card key={deal.dealID} className="p-3 flex justify-between items-center bg-[#0a0f18]/80 hover:bg-white/[0.08] transition-colors border-white/10 group">
+                              <div>
+                                <div className="text-sm font-bold text-white/90">{storeName}</div>
+                                <div className="flex items-center gap-2 mt-1">
+                                  {isDiscount && (
+                                      <span className="text-xs text-white/40 line-through">${deal.retailPrice}</span>
+                                  )}
+                                  <span className="text-lg font-black text-emerald-400">{kztPrice} ₸</span>
+                                </div>
                               </div>
-                            </div>
-                            <Button
-                                onClick={() => handleCpaSync(deal)}
-                                className="bg-white/10 hover:bg-blue-600 text-white border-none group-hover:shadow-[0_0_15px_rgba(37,99,235,0.5)] transition-all"
-                            >
-                              Перейти ↗
-                            </Button>
-                          </Card>
-                      );
-                    })}
+                              <Button
+                                  onClick={() => handleCpaSync(deal)}
+                                  className="bg-white/10 hover:bg-blue-600 text-white border-none group-hover:shadow-[0_0_15px_rgba(37,99,235,0.5)] transition-all"
+                              >
+                                Перейти ↗
+                              </Button>
+                            </Card>
+                        );
+                      })}
                   </div>
               )}
 
