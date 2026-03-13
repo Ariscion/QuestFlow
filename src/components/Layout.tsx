@@ -4,6 +4,7 @@ import { useApp, useIsAuthed, useIsReady } from "../app/store";
 import { cn } from "../lib/cn";
 import { logoutUser } from "../lib/firebase";
 import Search from "../pages/Search";
+import { useUserStore } from "../store/userStore";
 import { IconBell, IconDownloads, IconHome, IconLibrary, IconSettings, IconStore } from "./icons";
 
 type RailItemProps = {
@@ -46,6 +47,7 @@ export default function Layout() {
     async function handleLogout() {
         try {
             await logoutUser();
+            useUserStore.getState().reset();
             actions.signOut();
             nav("/auth");
         } catch (error) {

@@ -65,7 +65,7 @@ export default function Game() {
   const nav = useNavigate();
   const { trackEvent } = useAnalytics();
 
-  const buyGame = useUserStore((s) => s.buyGame);
+  const addClickXP = useUserStore((s) => s.addClickXP);
   const library = useUserStore((s) => s.library);
 
   const [gameState, setGameState] = useState<GamePageState>({
@@ -74,7 +74,7 @@ export default function Game() {
     steamDetails: null,
   });
 
-  const isOwned = library.some(g => g.id === id);
+  const isInLibrary = library.some(g => g.id === id);
   const loading = Boolean(id) && gameState.requestedId !== id;
   const csGame = gameState.requestedId === id ? gameState.csGame : null;
   const steamDetails = gameState.requestedId === id ? gameState.steamDetails : null;
@@ -134,29 +134,38 @@ export default function Game() {
     return () => { isMounted = false; };
   }, [id]);
 
-  const handleCpaSync = (deal: CheapSharkGameDeal) => {
-    if (!id || !csGame) {
+  const handleStoreClick = (deal: CheapSharkGameDeal) => {
+    if (!csGame) {
       return;
     }
 
     const storeName = STORE_NAMES[deal.storeID];
-    const kztPrice = Math.round(parseFloat(deal.price) * USD_TO_KZT);
+    addClickXP();
+    trackEvent('CPA_REDIRECT_AND_SYNC', { game: csGame.info.title, store: storeName });
 
-    // 1. Синхронизируем игру в нашу Библиотеку (денег не берем)
+    // Переход только по CPA-ссылке без автодобавления в библиотеку.
+    const storeUrl = `https://www.cheapshark.com/redirect?dealID=${deal.dealID}`;
+    window.open(storeUrl, '_blank');
+  };
+
+  const handleAddToLibrary = () => {
+    if (!id || !csGame || isInLibrary) {
+      return;
+    }
+
+    const preferredDeal = csGame.deals.find((deal) => Boolean(STORE_NAMES[deal.storeID]));
     const gameToSync: LibraryGame = {
       id,
       title: csGame.info.title,
       image: csGame.info.thumb,
-      steamPrice: deal.price,
-      epicPrice: deal.retailPrice
+      steamPrice: preferredDeal?.price ?? "0",
+      epicPrice: preferredDeal?.retailPrice ?? "0"
     };
 
-    buyGame(gameToSync, `${kztPrice} ₸`, storeName);
-    trackEvent('CPA_REDIRECT_AND_SYNC', { game: csGame.info.title, store: storeName });
+    const purchasedPrice = preferredDeal ? `${Math.round(parseFloat(preferredDeal.price) * USD_TO_KZT)} ₸` : "0 ₸";
+    const storeName = preferredDeal ? STORE_NAMES[preferredDeal.storeID] : "QuestFlow";
 
-    // 2. Формируем хитрую CPA-ссылку (CheapShark дает прямую рефералку!)
-    const storeUrl = `https://www.cheapshark.com/redirect?dealID=${deal.dealID}`;
-    window.open(storeUrl, '_blank');
+    useUserStore.getState().buyGame(gameToSync, purchasedPrice, storeName);
   };
 
   if (loading) {
@@ -214,6 +223,16 @@ export default function Game() {
                     </Pill>
                 )}
               </div>
+              <div className="mt-5">
+                <Button
+                    variant={isInLibrary ? "soft" : "primary"}
+                    disabled={isInLibrary}
+                    onClick={handleAddToLibrary}
+                    className={isInLibrary ? "opacity-60 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-500 border-none"}
+                >
+                  {isInLibrary ? "В коллекции" : "+ Добавить в мою коллекцию"}
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -251,48 +270,36 @@ export default function Game() {
           <div className="w-full xl:w-[400px] shrink-0 flex flex-col gap-5">
             <Panel className="p-6 bg-gradient-to-br from-indigo-900/10 to-blue-900/5 border-blue-500/20 sticky top-4">
               <h3 className="text-xl font-black text-white mb-4">Сравнение цен</h3>
+              <div className="flex flex-col gap-3">
+                {/* Кнопки магазинов только переводят по ссылке и дают XP за клик */}
+                {csGame.deals
+                  .filter((deal) => Boolean(STORE_NAMES[deal.storeID]))
+                  .map((deal) => {
+                    const storeName = STORE_NAMES[deal.storeID];
+                    const kztPrice = Math.round(parseFloat(deal.price) * USD_TO_KZT);
+                    const isDiscount = parseFloat(deal.savings) > 0;
 
-              {isOwned ? (
-                  <div className="text-center p-6 bg-emerald-500/10 border border-emerald-500/20 rounded-xl mb-4">
-                    <div className="text-3xl mb-2">✅</div>
-                    <div className="text-emerald-400 font-bold mb-1">Синхронизировано</div>
-                    <div className="text-xs text-emerald-400/60 mb-4">Игра уже добавлена в вашу библиотеку QuestFlow</div>
-                    <Button variant="primary" className="w-full bg-emerald-600 hover:bg-emerald-500 border-none" onClick={() => nav("/library")}>
-                      Открыть библиотеку
-                    </Button>
-                  </div>
-              ) : (
-                  <div className="flex flex-col gap-3">
-                    {/* Выводим все доступные магазины, где есть эта игра */}
-                    {csGame.deals
-                      .filter((deal) => Boolean(STORE_NAMES[deal.storeID]))
-                      .map((deal) => {
-                        const storeName = STORE_NAMES[deal.storeID];
-                        const kztPrice = Math.round(parseFloat(deal.price) * USD_TO_KZT);
-                        const isDiscount = parseFloat(deal.savings) > 0;
-
-                        return (
-                            <Card key={deal.dealID} className="p-3 flex justify-between items-center bg-[#0a0f18]/80 hover:bg-white/[0.08] transition-colors border-white/10 group">
-                              <div>
-                                <div className="text-sm font-bold text-white/90">{storeName}</div>
-                                <div className="flex items-center gap-2 mt-1">
-                                  {isDiscount && (
-                                      <span className="text-xs text-white/40 line-through">${deal.retailPrice}</span>
-                                  )}
-                                  <span className="text-lg font-black text-emerald-400">{kztPrice} ₸</span>
-                                </div>
-                              </div>
-                              <Button
-                                  onClick={() => handleCpaSync(deal)}
-                                  className="bg-white/10 hover:bg-blue-600 text-white border-none group-hover:shadow-[0_0_15px_rgba(37,99,235,0.5)] transition-all"
-                              >
-                                Перейти ↗
-                              </Button>
-                            </Card>
-                        );
-                      })}
-                  </div>
-              )}
+                    return (
+                        <Card key={deal.dealID} className="p-3 flex justify-between items-center bg-[#0a0f18]/80 hover:bg-white/[0.08] transition-colors border-white/10 group">
+                          <div>
+                            <div className="text-sm font-bold text-white/90">{storeName}</div>
+                            <div className="flex items-center gap-2 mt-1">
+                              {isDiscount && (
+                                  <span className="text-xs text-white/40 line-through">${deal.retailPrice}</span>
+                              )}
+                              <span className="text-lg font-black text-emerald-400">{kztPrice} ₸</span>
+                            </div>
+                          </div>
+                          <Button
+                              onClick={() => handleStoreClick(deal)}
+                              className="bg-white/10 hover:bg-blue-600 text-white border-none group-hover:shadow-[0_0_15px_rgba(37,99,235,0.5)] transition-all"
+                          >
+                            Перейти ↗
+                          </Button>
+                        </Card>
+                    );
+                  })}
+              </div>
 
               <div className="mt-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl">
                 <div className="text-xs text-blue-300 font-medium flex gap-2 items-start">

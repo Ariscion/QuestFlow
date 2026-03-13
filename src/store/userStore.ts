@@ -21,6 +21,7 @@ interface UserState {
     buyGame: (gameData: Game, purchasedPrice: string, storeName: string) => boolean;
     addClickXP: () => void;
     setCloudData: (data: Partial<UserState>) => void;
+    reset: () => void;
 }
 
 export const useUserStore = create<UserState>()(
@@ -77,6 +78,13 @@ export const useUserStore = create<UserState>()(
             setCloudData: (data) => set((state) => ({
                 ...state,
                 ...data,
+            })),
+
+            reset: () => set(() => ({
+                library: [],
+                userXP: 0,
+                userLevel: 1,
+                xpToNextLevel: 1000,
             }))
         }),
         {
