@@ -1,0 +1,27 @@
+{
+  "name": "QuestFlow Deals Aggregator",
+  "short_name": "QuestFlow",
+  "description": "Gamified platform and digital goods price aggregator",
+  "theme_color": "#0a0f18",
+  "background_color": "#0a0f18",
+  "display": "standalone",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "pwa-192x192.png",
+      "sizes": "any",
+      "type": "image/png"
+    },
+    {
+      "src": "pwa-512x512.png",
+      "sizes": "any",
+      "type": "image/png"
+    },
+    {
+      "src": "pwa-512x512.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

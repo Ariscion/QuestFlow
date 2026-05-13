@@ -1,0 +1,361 @@
+{
+  "nav": {
+    "home": "Home",
+    "store": "Store",
+    "library": "Library",
+    "downloads": "Downloads",
+    "notifications": "Notifications",
+    "help": "Help",
+    "settings": "Settings"
+  },
+  "common": {
+    "welcome": "Welcome",
+    "exit": "Logout",
+    "login": "Login",
+    "guest": "Guest",
+    "search_placeholder": "Search games (e.g., Witcher)...",
+    "search_games": "Search games"
+  },
+  "help": {
+    "title": "QuestFlow Help & Ethics",
+    "xp": {
+      "title": "Experience System (XP)",
+      "desc1": "The experience system (XP) is a tool to visualize your progress as a conscious buyer. Points do not give in-game advantages. Currently, XP is awarded only for two actions: going to the store and manually adding a game to the library.",
+      "desc2": "The current level starts with a threshold of {{initial}} XP. Upon leveling up, the threshold increases by {{multiplier}} times.",
+      "actions": {
+        "redirect": "Store redirect (via offer button)",
+        "add": "Manually adding a game to library"
+      }
+    },
+    "ethics": {
+      "title": "Responsible Development Code",
+      "subtitle": "We design QuestFlow based on four principles:",
+      "p1": "Transparency: No hidden advertising algorithms. Only objective data.",
+      "p2": "Data Minimization: We collect only technical IDs necessary for operation.",
+      "p3": "Conscious Choice: Gamification is an option that can be ignored.",
+      "p4": "Freedom from Manipulation: Rejection of dark patterns and artificial pressure on the user."
+    },
+    "privacy": {
+      "title": "Privacy & Data Processing",
+      "desc": "We use an ELT pipeline (Extract, Load, Transform) for data processing. We do not store PII (Personally Identifiable Information); instead, we perform anonymization and remove anomalies in the cloud to ensure analytics accuracy without violating user privacy."
+    },
+    "stores": {
+      "title": "Supported Stores",
+      "desc": "We aggregate data only from official and verified stores. We do not support the gray market and key resellers.",
+      "steam": "The main PC gaming store. Prices are requested directly or converted.",
+      "epic": "Store from Epic Games. Known for free giveaways and exclusives.",
+      "gog": "Store from CD Projekt. All games are sold DRM-free (without protection).",
+      "humble": "Store where part of the profits goes to charity.",
+      "gmg": "Official UK retailer of keys for various platforms.",
+      "fanatical": "Official key store known for its bundles.",
+      "gamersgate": "One of the oldest digital distribution stores.",
+      "gamesplanet": "European store with official keys for Steam, Ubisoft, etc.",
+      "wingamestore": "Store focused on Windows games."
+    },
+    "sources": {
+      "title": "Data Sources",
+      "desc_before": "All price and discount data in the application is provided via the",
+      "desc_after": " API. We thank the CheapShark team for supporting open data and helping gamers find the best deals."
+    }
+  },
+  "settings": {
+    "title": "Profile & Interface Settings",
+    "profile": {
+      "title": "Profile",
+      "no_email": "Email not specified",
+      "level": "Level",
+      "xp": "XP: {{xp}} / {{total}}"
+    },
+    "interface": {
+      "title": "Interface",
+      "animations": {
+        "title": "Animations",
+        "desc": "Smooth interface transitions"
+      },
+      "region": {
+        "title": "Region (for Steam prices)"
+      },
+      "language": {
+        "title": "Interface Language"
+      }
+    },
+    "data": {
+      "title": "Data",
+      "clear_cache": {
+        "title": "Clear Cache & Logout",
+        "desc": "Deletes local caches and terminates the account session.",
+        "button": "Clear Cache & Logout",
+        "loading": "Logging out..."
+      }
+    }
+  },
+  "library": {
+    "platform": {
+      "synced": "Synced"
+    },
+    "profile": {
+      "default_name": "QuestFlow User",
+      "role": "Deal Hunter"
+    },
+    "stats": {
+      "saved": "Saved",
+      "real_cost": "Real cost:",
+      "in_library": "In library",
+      "games": "games",
+      "games_count": "Games: {{count}}",
+      "wishlist_count": "In wishlist: {{count}}"
+    },
+    "tabs": {
+      "my_games": "My Games",
+      "wishlist": "Wishlist"
+    },
+    "empty": {
+      "library": "Your library is empty",
+      "wishlist": "Wishlist is empty",
+      "library_desc": "Go to the store to find the best deals and sync games.",
+      "wishlist_desc": "Add games to wishlist to track their deals."
+    },
+    "actions": {
+      "remove_library": "Remove from library",
+      "remove_wishlist": "Remove from wishlist"
+    }
+  },
+  "notifications": {
+    "title": "Notifications & Activities",
+    "deal": {
+      "title": "Huge discount on {{title}}!",
+      "time": "Right now",
+      "desc": "Discount {{savings}}%! \"{{title}}\" and many other popular games can be grabbed at a very favorable price right now.",
+      "to_deals": "To deals",
+      "hide": "Hide"
+    },
+    "level": {
+      "title": "You have reached Level {{level}}!",
+      "time": "Recently",
+      "desc": "Your authority is growing. {{xp}} XP left until the next level. Keep building your library!"
+    },
+    "welcome": {
+      "title": "Welcome to QuestFlow!",
+      "time": "System",
+      "desc": "You have successfully logged into the system. Now your library and level are securely saved in the cloud."
+    },
+    "pinned": {
+      "title": "Pinned",
+      "api_status": {
+        "label": "API Status",
+        "online": "CheapShark Online"
+      },
+      "next_step": {
+        "label": "Next Step",
+        "desc": "Direct integration with Epic Games Store to get accurate prices and expansion of the list of supported regions."
+      }
+    }
+  },
+  "downloads": {
+    "status": {
+      "installed": "Installed",
+      "ready": "Ready to install"
+    },
+    "hero": {
+      "desc": "Get the maximum: auto-updates, background downloading, and game overlay in our native client. Install QuestFlow right now.",
+      "browser_support": "Automatic installation is supported in Chromium-based browsers (Chrome, Edge, Yandex, Opera)."
+    },
+    "button": {
+      "installed": "Application installed",
+      "download": "Download for Windows"
+    },
+    "alert": {
+      "not_supported": "Unfortunately, your browser (e.g., Firefox or Safari) does not support automatic PWA installation on desktop. Please open the site in Chrome, Edge, or Yandex Browser to install the application."
+    },
+    "features": {
+      "launcher": {
+        "title": "Unified Launcher",
+        "desc": "All your games in one place"
+      },
+      "download": {
+        "title": "Smart Download",
+        "desc": "Speed and priority management"
+      },
+      "lightweight": {
+        "title": "Lightweight",
+        "desc": "Minimal RAM consumption"
+      }
+    }
+  },
+  "home": {
+    "title_prefix": "Hot Deals",
+    "title_suffix": "QuestFlow",
+    "status": {
+      "updating": "Updating...",
+      "online": "API Online",
+      "offline": "Offline Mode"
+    },
+    "offline_warning": {
+      "title": "Warning: Offline Mode",
+      "desc": "Internet connection may be missing. Showing cached data."
+    },
+    "hero": {
+      "discount_of_day": "DISCOUNT OF THE DAY -{{percent}}%",
+      "compare_prices": "Compare prices (from {{price}})"
+    }
+  },
+  "store": {
+    "results": {
+      "search": "Search results: \"{{query}}\"",
+      "default": "Aggregator price comparison"
+    },
+    "status": {
+      "updating": "Updating...",
+      "online": "API Online",
+      "offline": "Offline Mode"
+    },
+    "offline_warning": {
+      "title": "Warning: Offline Mode",
+      "desc": "Internet connection may be missing. Showing cached data."
+    },
+    "deal": {
+      "best_price": "Best price: {{price}}",
+      "no_data": "No data",
+      "compare_prices": "Compare prices",
+      "from_price": "from {{price}}",
+      "free": "Free"
+    },
+    "empty": {
+      "not_found": "Nothing found. Try another query.",
+      "start_typing": "Start typing the game title in the search bar."
+    }
+  },
+  "game": {
+    "store_fallback": "Store",
+    "not_found": "Game not found",
+    "to_deals": "To deals",
+    "default_description": "Detailed description is available in the selected store.",
+    "back": "← Back",
+    "actions": {
+      "remove_library": "Remove from library",
+      "add_library": "Select store and add",
+      "remove_wishlist": "Remove from wishlist",
+      "add_wishlist": "Add to wishlist"
+    },
+    "about": "About the game",
+    "screenshots": "Screenshots",
+    "price_comparison": "Price comparison",
+    "warning": "Before purchasing from third-party stores, make sure that the key activates in your region and for your launcher.",
+    "open": "Open",
+    "add_from_store": "Add from this store",
+    "no_active_deals": "No active deals at the moment",
+    "redirect_info": "Redirect leads to the store storefront. To save the game to your library, use the \"Add to library\" button."
+  },
+  "region_modal": {
+    "title": "Select Region",
+    "subtitle": "For accurate Steam prices",
+    "desc": "Select your region (or your Steam account region) so we can show relevant prices and discounts:",
+    "stores": {
+      "kz": "Kazakhstan",
+      "ru": "Russia",
+      "tr": "Turkey",
+      "ua": "Ukraine",
+      "other": "Other Region"
+    },
+    "currencies": {
+      "kz": "Prices in Tenge (₸)",
+      "ru": "Prices in Rubles (₽)",
+      "tr": "Prices in USD (MENA)",
+      "ua": "Prices in Hryvnias (₴)",
+      "other": "Prices in USD"
+    },
+    "footer": "You can always change the region in profile settings."
+  },
+  "changelog": {
+    "title": "Update",
+    "subtitle": "Version {{version}}",
+    "desc": "We have seriously upgraded QuestFlow! Here is what's new:",
+    "items": [
+      "Fixed display of Steam regional prices on hosting.",
+      "Added option to manually select region in settings for accurate price calculation.",
+      "Optimized proxy server for faster data loading.",
+      "Fixed offset of the \"Open\" button in the stores list.",
+      "Added one-time region request on first login for price personalization."
+    ],
+    "button": "Cool, let's go!"
+  },
+  "auth": {
+    "required": "Required field",
+    "invalid_email": "Invalid email format",
+    "password_min": "Password must be at least 6 characters",
+    "reg_success": "Registration successful!",
+    "email_in_use": "Email already in use",
+    "invalid_credentials": "Invalid email or password",
+    "firebase_error": "Enable Email/Password in Firebase Console!",
+    "weak_password": "Password too weak (minimum 6 characters)",
+    "unknown_error": "Unknown error",
+    "enter_valid_email": "Enter a valid email to reset password",
+    "email_sent": "Email sent!",
+    "reset_email_sent": "Password reset link sent to your email. Be sure to check the Spam folder!",
+    "email_send_error": "Error sending email or user not found",
+    "cloud_tracker": "Cloud Discount Tracker",
+    "hero_title_1": "Your library",
+    "hero_title_2": "in one place.",
+    "hero_desc": "Compare prices, find historical lows, and get XP for every game in your collection.",
+    "stores_support_1": "Supports",
+    "stores_support_2": "popular stores",
+    "create_account": "Create Account",
+    "welcome_back": "Welcome Back",
+    "create_profile_desc": "Create a profile to save your collection",
+    "login_desc": "Log in to continue shopping with maximum benefits",
+    "processing": "Processing...",
+    "continue_with_google": "Continue with Google",
+    "or_by_email": "Or by Email",
+    "email_placeholder": "Email Address",
+    "password_placeholder": "Password",
+    "forgot_password": "Forgot password?",
+    "register": "Register",
+    "login": "Log In",
+    "already_have_account": "Already have an account? ",
+    "first_time": "First time here? ",
+    "sign_in": "Log In",
+    "offline_mode": "Offline Mode (No Auth)"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "deal": {
+      "title": "Hot deal: {{title}}",
+      "time": "Now",
+      "desc": "Discount {{savings}}% on {{title}}! Don't miss it.",
+      "to_deals": "To deals",
+      "hide": "Hide"
+    },
+    "level": {
+      "title": "New level: {{level}}",
+      "time": "Recently",
+      "desc": "You need {{xp}} XP to the next level."
+    },
+    "welcome": {
+      "title": "Welcome to QuestFlow!",
+      "time": "At registration",
+      "desc": "Explore the best discounts on games!"
+    },
+    "pinned": {
+      "title": "Pinned notifications",
+      "api_status": {
+        "label": "API Status",
+        "online": "Online"
+      },
+      "next_step": {
+        "label": "Next step",
+        "desc": "Add a game to library to receive discount notifications!"
+      }
+    },
+    "wishlist_added": "Added to wishlist",
+    "wishlist_removed": "Removed from wishlist",
+    "game_added": "Game added!",
+    "xp_gained": "You received +{{xp}} XP",
+    "hunter_bonus": "Hunter Bonus!",
+    "xp_gained_store": "You received +{{xp}} XP for visiting the store",
+    "new_level": "New Level",
+    "level_up_desc": "You are gaining more authority among discount hunters!",
+    "wishlist_discounts_title": "Discounts in Wishlist! 🎉",
+    "wishlist_discount_single": "Price for {{name}} has dropped!",
+    "wishlist_discount_multiple": "{{name}} and {{count}} more games are cheaper now! Check your library."
+  }
+}
