@@ -36,7 +36,7 @@ export type CurrencyInfo = {
 
 export type CloudUserData = Partial<Pick<UserState, "library" | "wishlist" | "userXP" | "userLevel" | "xpToNextLevel">>;
 type ProgressSnapshot = Pick<UserState, "library" | "wishlist" | "userXP" | "userLevel" | "xpToNextLevel">;
-const CLOUD_SYNC_DEBOUNCE_MS = 300;
+const CLOUD_SYNC_DEBOUNCE_MS = 2500;
 
 interface UserState {
     user: User | null;

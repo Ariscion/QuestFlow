@@ -9,7 +9,7 @@ import { Toaster } from "./components/ui/Toaster";
 import ChangelogModal from "./components/ChangelogModal";
 import RegionModal from "./components/RegionModal";
 import LanguageModal from "./components/LanguageModal";
-import { auth, getUserDataFromDb } from "./lib/firebase";
+import { auth, getUserDataFromDb, saveUserDataToDb } from "./lib/firebase";
 import HelpAndEthicsPage from "./pages/HelpAndEthicsPage";
 import ErrorBoundary from "./components/ErrorBoundary";
 import Library from "./pages/Library";
@@ -98,6 +98,18 @@ function AppContent() {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     };
   }, [setDeferredPrompt]);
+
+  // Flush pending cloud sync when user closes/refreshes the tab
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      const { user, library, wishlist, userXP, userLevel, xpToNextLevel } = useUserStore.getState();
+      if (!user?.uid) return;
+      void saveUserDataToDb(user.uid, { library, wishlist, userXP, userLevel, xpToNextLevel });
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, []);
 
   const appStyle = {} as CSSProperties;
 
