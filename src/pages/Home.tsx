@@ -26,7 +26,8 @@ const formatSavings = (savings: string): number => Math.round(Number.parseFloat(
 
 const HeroDealCard = memo(function HeroDealCard({ deal, onOpenDeal }: DealCardProps) {
   const { t } = useTranslation();
-  const { rateToUSD, symbol } = useUserStore((s) => s.currencyInfo);
+  const rateToUSD = useUserStore((s) => s.currencyInfo.rateToUSD);
+  const symbol = useUserStore((s) => s.currencyInfo.symbol);
 
   const handleOpen = useCallback(() => {
     onOpenDeal(deal.gameID, deal.title);
@@ -77,7 +78,8 @@ const HeroDealCard = memo(function HeroDealCard({ deal, onOpenDeal }: DealCardPr
 });
 
 const DealGridCard = memo(function DealGridCard({ deal, onOpenDeal }: DealCardProps) {
-  const { rateToUSD, symbol } = useUserStore((s) => s.currencyInfo);
+  const rateToUSD = useUserStore((s) => s.currencyInfo.rateToUSD);
+  const symbol = useUserStore((s) => s.currencyInfo.symbol);
 
   const handleOpen = useCallback(() => {
     onOpenDeal(deal.gameID, deal.title);

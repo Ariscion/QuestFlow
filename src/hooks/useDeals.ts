@@ -14,30 +14,26 @@ export interface AppDeal {
 
 export function useDeals(searchQuery: string) {
     const normalizedQuery = searchQuery.toLowerCase().trim();
-    const { rateToUSD, symbol } = useUserStore((s) => s.currencyInfo);
+    const rateToUSD = useUserStore((s) => s.currencyInfo.rateToUSD);
+    const symbol = useUserStore((s) => s.currencyInfo.symbol);
 
     return useQuery({
-        queryKey: ["deals", normalizedQuery, rateToUSD],
+        // rateToUSD removed — CheapShark always returns USD, conversion is in `select`
+        queryKey: ["deals", normalizedQuery],
         queryFn: async () => {
             if (!normalizedQuery) return [];
-            
-            const results = await CheapSharkApi.searchGames(normalizedQuery);
-            
-            return results.map(game => {
-                const usdPrice = parseFloat(game.cheapest);
-                const localPrice = Math.round(usdPrice * rateToUSD);
-
-                return {
-                    id: game.gameID,
-                    title: game.external,
-                    thumb: game.thumb,
-                    steamAppID: game.steamAppID,
-                    bestPriceUSD: game.cheapest,
-                    bestPriceLocal: localPrice,
-                    currency: symbol || 'USD',
-                };
-            });
+            return await CheapSharkApi.searchGames(normalizedQuery);
         },
+        // `select` runs reactively on cached data — no new HTTP request when currency changes
+        select: (data) => data.map(game => ({
+            id: game.gameID,
+            title: game.external,
+            thumb: game.thumb,
+            steamAppID: game.steamAppID,
+            bestPriceUSD: game.cheapest,
+            bestPriceLocal: Math.round(parseFloat(game.cheapest) * rateToUSD),
+            currency: symbol || 'USD',
+        })),
         enabled: Boolean(normalizedQuery),
         staleTime: 1000 * 60 * 15,
     });
