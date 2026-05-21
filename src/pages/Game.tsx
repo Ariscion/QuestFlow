@@ -6,6 +6,8 @@ import { useAnalytics } from "../hooks/useAnalytics";
 import { STORE_NAMES } from "../services/cheapSharkApi";
 import { useGameDetails } from "../hooks/useGameDetails";
 import { useTranslation } from "react-i18next";
+import { resolveStoreUrl } from "../lib/affiliate";
+import { PriceAlertButton } from "../components/PriceAlertButton";
 
 interface GamePageDeal {
     dealID: string;
@@ -43,10 +45,7 @@ export default function Game() {
     addClickXP();
     trackEvent('CPA_REDIRECT_AND_SYNC', { game: csGame.info.title, store: storeName });
 
-    // ITAD вернул прямую ссылку на магазин (deal.dealID = full URL)
-    // CheapShark вернул dealID строку — редиректим через их сервис
-    const isUrl = deal.dealID?.startsWith('http');
-    const storeUrl = isUrl ? deal.dealID : `https://www.cheapshark.com/redirect?dealID=${deal.dealID}`;
+    const storeUrl = resolveStoreUrl(deal.dealID);
     window.open(storeUrl, '_blank');
   };
 
@@ -271,6 +270,12 @@ export default function Game() {
                             {t('game.add_from_store')}
                           </button>
                         )}
+                        <PriceAlertButton
+                          gameID={id!}
+                          title={csGame.info.title}
+                          thumb={csGame.info.thumb}
+                          currentPrice={parseFloat(deal.price)}
+                        />
                       </div>
                     );
                   })

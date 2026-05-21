@@ -54,3 +54,55 @@ export const saveUserDataToDb = async (uid: string, data: Record<string, unknown
         console.error("Ошибка сохранения данных пользователя:", error);
     }
 };
+
+// ─── Price Alert Helpers ──────────────────────────────────────────────────────
+
+export interface PriceAlert {
+    gameID: string;
+    title: string;
+    thumb: string;
+    targetPrice: number;      // USD — пользователь хочет уведомление ниже этой цены
+    currentPrice: number;     // USD — цена на момент создания алерта
+    createdAt: string;        // ISO timestamp
+}
+
+/**
+ * Saves a price alert for a game under /users/{uid}/priceAlerts/{gameID}.
+ * Overwrites any existing alert for the same game.
+ */
+export const setPriceAlert = async (uid: string, alert: PriceAlert): Promise<void> => {
+    try {
+        await setDoc(doc(db, "users", uid, "priceAlerts", alert.gameID), alert);
+    } catch (error) {
+        console.error("Ошибка сохранения алерта цены:", error);
+        throw error;
+    }
+};
+
+/**
+ * Removes a price alert for a specific game.
+ */
+export const removePriceAlert = async (uid: string, gameID: string): Promise<void> => {
+    try {
+        const { deleteDoc } = await import("firebase/firestore");
+        await deleteDoc(doc(db, "users", uid, "priceAlerts", gameID));
+    } catch (error) {
+        console.error("Ошибка удаления алерта цены:", error);
+        throw error;
+    }
+};
+
+/**
+ * Fetches all price alerts for a user.
+ */
+export const getPriceAlerts = async (uid: string): Promise<PriceAlert[]> => {
+    try {
+        const { collection, getDocs } = await import("firebase/firestore");
+        const snap = await getDocs(collection(db, "users", uid, "priceAlerts"));
+        return snap.docs.map(d => d.data() as PriceAlert);
+    } catch (error) {
+        console.error("Ошибка загрузки алертов:", error);
+        return [];
+    }
+};
+
