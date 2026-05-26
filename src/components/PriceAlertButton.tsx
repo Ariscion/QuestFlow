@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from "react";
 import { getPriceAlerts, setPriceAlert, removePriceAlert, type PriceAlert } from "../lib/firebase";
 import { useUserStore } from "../store/userStore";
 import { useToastStore } from "../store/toastStore";
+import { useQueryClient } from "@tanstack/react-query";
+import { usePriceAlerts } from "../hooks/usePriceAlerts";
 
 interface PriceAlertButtonProps {
     gameID: string;
@@ -14,27 +16,16 @@ export function PriceAlertButton({ gameID, title, thumb, currentPrice }: PriceAl
     const user = useUserStore((s) => s.user);
     const isAuthed = useUserStore((s) => s.isAuthed);
     const addToast = useToastStore((s) => s.addToast);
+    const queryClient = useQueryClient();
 
-    const [hasAlert, setHasAlert] = useState(false);
+    const { data: alerts } = usePriceAlerts(user?.uid);
+    const hasAlert = alerts?.some((a) => a.gameID === gameID) ?? false;
+
     const [isLoading, setIsLoading] = useState(false);
     const [showInput, setShowInput] = useState(false);
     const [targetInput, setTargetInput] = useState(
         currentPrice > 0 ? String(Math.max(0.01, currentPrice * 0.8).toFixed(2)) : "5.00"
     );
-
-    // Check if alert already exists for this game
-    useEffect(() => {
-        if (!user?.uid) return;
-        let cancelled = false;
-
-        getPriceAlerts(user.uid).then((alerts) => {
-            if (!cancelled) {
-                setHasAlert(alerts.some((a) => a.gameID === gameID));
-            }
-        });
-
-        return () => { cancelled = true; };
-    }, [user?.uid, gameID]);
 
     const handleToggle = useCallback(async () => {
         if (!isAuthed || !user?.uid) {
@@ -47,7 +38,7 @@ export function PriceAlertButton({ gameID, title, thumb, currentPrice }: PriceAl
             setIsLoading(true);
             try {
                 await removePriceAlert(user.uid, gameID);
-                setHasAlert(false);
+                await queryClient.invalidateQueries({ queryKey: ["priceAlerts", user.uid] });
                 addToast({ title: "Алерт удалён", message: title, type: "info" });
             } catch {
                 addToast({ title: "Ошибка", message: "Не удалось удалить алерт", type: "error" });
@@ -58,7 +49,7 @@ export function PriceAlertButton({ gameID, title, thumb, currentPrice }: PriceAl
             // Show price input
             setShowInput(true);
         }
-    }, [isAuthed, user?.uid, hasAlert, gameID, title, addToast]);
+    }, [isAuthed, user?.uid, hasAlert, gameID, title, addToast, queryClient]);
 
     const handleSaveAlert = useCallback(async () => {
         if (!user?.uid) return;
@@ -79,7 +70,7 @@ export function PriceAlertButton({ gameID, title, thumb, currentPrice }: PriceAl
                 createdAt: new Date().toISOString(),
             };
             await setPriceAlert(user.uid, alert);
-            setHasAlert(true);
+            await queryClient.invalidateQueries({ queryKey: ["priceAlerts", user.uid] });
             setShowInput(false);
             addToast({
                 title: "🔔 Алерт установлен",
@@ -92,7 +83,7 @@ export function PriceAlertButton({ gameID, title, thumb, currentPrice }: PriceAl
         } finally {
             setIsLoading(false);
         }
-    }, [user?.uid, targetInput, gameID, title, thumb, currentPrice, addToast]);
+    }, [user?.uid, targetInput, gameID, title, thumb, currentPrice, addToast, queryClient]);
 
     if (!isAuthed) return null;
 

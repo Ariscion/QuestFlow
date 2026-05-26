@@ -129,7 +129,7 @@ export const CheapSharkApi = {
 
     getTopDeals: async (signal?: AbortSignal): Promise<CheapSharkTopDeal[]> => {
         try {
-            const data = await fetchWithTimeout(`${CS_BASE}/deals?pageSize=20`, { signal });
+            const data = await fetchWithTimeout(`${CS_BASE}/deals?pageSize=50`, { signal });
             
             return data.map((deal: RawCheapSharkTopDeal) => ({
                 title: deal.title,

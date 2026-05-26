@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button, Panel, Pill, Skeleton } from "../components/ui";
 import type { Game as LibraryGame } from "../store/userStore";
@@ -27,14 +28,12 @@ export default function Game() {
   const { trackEvent } = useAnalytics();
 
   const addClickXP = useUserStore((s) => s.addClickXP);
-  const library = useUserStore((s) => s.library);
-  const wishlist = useUserStore((s) => s.wishlist);
   const toggleWishlist = useUserStore((s) => s.toggleWishlist);
   const currencyInfo = useUserStore((s) => s.currencyInfo);
   const removeGame = useUserStore((s) => s.removeGame);
 
-  const isInLibrary = library.some(g => g.id === id);
-  const isInWishlist = wishlist?.some(g => g.id === id);
+  const isInLibrary = useUserStore(useCallback((s) => s.library.some(g => g.id === id), [id]));
+  const isInWishlist = useUserStore(useCallback((s) => s.wishlist?.some(g => g.id === id) ?? false, [id]));
   
   const { csGame, steamDetails, isLoading } = useGameDetails(id);
 

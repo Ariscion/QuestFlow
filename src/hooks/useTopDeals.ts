@@ -2,12 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 import { CheapSharkApi, type CheapSharkTopDeal } from "../services/cheapSharkApi";
 
 export function useTopDeals(limit: number = 7) {
-    return useQuery<CheapSharkTopDeal[]>({
-        queryKey: ["topDeals", limit],
+    return useQuery({
+        queryKey: ["topDeals"],
         queryFn: async () => {
-            const deals = await CheapSharkApi.getTopDeals();
-            
-            // Фильтруем дубликаты игр, оставляя только лучшее предложение для каждой игры
+            return await CheapSharkApi.getTopDeals();
+        },
+        select: (deals) => {
             const uniqueDeals: CheapSharkTopDeal[] = [];
             const seenGames = new Set<string>();
             
@@ -17,7 +17,6 @@ export function useTopDeals(limit: number = 7) {
                     uniqueDeals.push(deal);
                 }
             }
-            
             return uniqueDeals.slice(0, limit);
         },
         staleTime: 1000 * 60 * 15,
