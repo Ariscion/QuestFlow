@@ -26,9 +26,9 @@ export default function HelpAndEthicsPage() {
     <div className="h-full flex flex-col gap-5 overflow-y-auto pr-1">
       <div className="text-sm text-white/65 font-semibold">{t('help.title')}</div>
 
-      <Panel className="p-6 bg-black/20 border-white/10">
+      <Panel className="p-6 border-slate-800">
         <div className="text-xs text-white/45 uppercase font-bold tracking-wider mb-4">{t('help.xp.title')}</div>
-        <Card className="p-4 bg-white/[0.02] border-white/5">
+        <Card className="p-4 bg-slate-950/40 border border-slate-800/60">
           <p className="text-sm text-white/70 leading-relaxed">
             {t('help.xp.desc1')}
           </p>
@@ -37,7 +37,7 @@ export default function HelpAndEthicsPage() {
             {t('help.xp.desc2', { initial: XP_LEVELING.initialThreshold, multiplier: XP_LEVELING.thresholdMultiplier })}
           </p>
 
-          <div className="mt-4 divide-y divide-white/10 rounded-xl border border-white/10 bg-black/20">
+          <div className="mt-4 divide-y divide-slate-800 rounded-xl border border-slate-800 bg-slate-950/50">
             {XP_ACTIONS.map((action) => (
               <div key={action.key} className="flex items-center justify-between px-4 py-3">
                 <span className="text-sm text-white/80">{t(action.key)}</span>
@@ -48,9 +48,9 @@ export default function HelpAndEthicsPage() {
         </Card>
       </Panel>
 
-      <Panel className="p-6 bg-black/20 border-white/10">
+      <Panel className="p-6 border-slate-800">
         <div className="text-xs text-white/45 uppercase font-bold tracking-wider mb-4">{t('help.ethics.title')}</div>
-        <Card className="p-4 bg-white/[0.02] border-white/5">
+        <Card className="p-4 bg-slate-950/40 border border-slate-800/60">
           <p className="text-sm text-white/70 leading-relaxed mb-3">
             {t('help.ethics.subtitle')}
           </p>
@@ -59,7 +59,7 @@ export default function HelpAndEthicsPage() {
             {ETHICS_PRINCIPLES.map((key) => (
               <div
                 key={key}
-                className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3 text-sm text-white/75 leading-relaxed"
+                className="rounded-xl border border-slate-800/60 bg-slate-950/20 px-3 py-3 text-sm text-white/75 leading-relaxed"
               >
                 {t(key)}
               </div>
@@ -68,56 +68,56 @@ export default function HelpAndEthicsPage() {
         </Card>
       </Panel>
 
-      <Panel className="p-6 bg-black/20 border-white/10">
+      <Panel className="p-6 border-slate-800">
         <div className="text-xs text-white/45 uppercase font-bold tracking-wider mb-4">{t('help.privacy.title')}</div>
-        <Card className="p-4 bg-white/[0.02] border-white/5">
+        <Card className="p-4 bg-slate-950/40 border border-slate-800/60">
           <p className="text-sm text-white/70 leading-relaxed">
             {t('help.privacy.desc')}
           </p>
         </Card>
       </Panel>
 
-      <Panel className="p-6 bg-black/20 border-white/10">
+      <Panel className="p-6 border-slate-800">
         <div className="text-xs text-white/45 uppercase font-bold tracking-wider mb-4">{t('help.stores.title')}</div>
-        <Card className="p-4 bg-white/[0.02] border-white/5">
+        <Card className="p-4 bg-slate-950/40 border border-slate-800/60">
           <p className="text-sm text-white/70 leading-relaxed mb-3">
             {t('help.stores.desc')}
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
-            <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3">
+            <div className="rounded-xl border border-slate-800/60 bg-slate-950/20 px-3 py-3">
               <div className="text-sm font-bold text-white/90">Steam</div>
               <div className="text-xs text-white/50 mt-1">{t('help.stores.steam')}</div>
             </div>
-            <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3">
+            <div className="rounded-xl border border-slate-800/60 bg-slate-950/20 px-3 py-3">
               <div className="text-sm font-bold text-white/90">Epic Games Store</div>
               <div className="text-xs text-white/50 mt-1">{t('help.stores.epic')}</div>
             </div>
-            <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3">
+            <div className="rounded-xl border border-slate-800/60 bg-slate-950/20 px-3 py-3">
               <div className="text-sm font-bold text-white/90">GOG</div>
               <div className="text-xs text-white/50 mt-1">{t('help.stores.gog')}</div>
             </div>
-            <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3">
+            <div className="rounded-xl border border-slate-800/60 bg-slate-950/20 px-3 py-3">
               <div className="text-sm font-bold text-white/90">Humble Store</div>
               <div className="text-xs text-white/50 mt-1">{t('help.stores.humble')}</div>
             </div>
-            <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3">
+            <div className="rounded-xl border border-slate-800/60 bg-slate-950/20 px-3 py-3">
               <div className="text-sm font-bold text-white/90">Green Man Gaming</div>
               <div className="text-xs text-white/50 mt-1">{t('help.stores.gmg')}</div>
             </div>
-            <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3">
+            <div className="rounded-xl border border-slate-800/60 bg-slate-950/20 px-3 py-3">
               <div className="text-sm font-bold text-white/90">Fanatical</div>
               <div className="text-xs text-white/50 mt-1">{t('help.stores.fanatical')}</div>
             </div>
-            <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3">
+            <div className="rounded-xl border border-slate-800/60 bg-slate-950/20 px-3 py-3">
               <div className="text-sm font-bold text-white/90">GamersGate</div>
               <div className="text-xs text-white/50 mt-1">{t('help.stores.gamersgate')}</div>
             </div>
-            <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3">
+            <div className="rounded-xl border border-slate-800/60 bg-slate-950/20 px-3 py-3">
               <div className="text-sm font-bold text-white/90">Gamesplanet</div>
               <div className="text-xs text-white/50 mt-1">{t('help.stores.gamesplanet')}</div>
             </div>
-            <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3">
+            <div className="rounded-xl border border-slate-800/60 bg-slate-950/20 px-3 py-3">
               <div className="text-sm font-bold text-white/90">WinGameStore</div>
               <div className="text-xs text-white/50 mt-1">{t('help.stores.wingamestore')}</div>
             </div>
@@ -125,9 +125,9 @@ export default function HelpAndEthicsPage() {
         </Card>
       </Panel>
 
-      <Panel className="p-6 bg-black/20 border-white/10">
+      <Panel className="p-6 border-slate-800">
         <div className="text-xs text-white/45 uppercase font-bold tracking-wider mb-4">{t('help.sources.title')}</div>
-        <Card className="p-4 bg-white/[0.02] border-white/5">
+        <Card className="p-4 bg-slate-950/40 border border-slate-800/60">
           <p className="text-sm text-white/70 leading-relaxed">
             {t('help.sources.desc_before')}{" "}
             <a href="https://www.cheapshark.com/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline underline-offset-4 font-bold">

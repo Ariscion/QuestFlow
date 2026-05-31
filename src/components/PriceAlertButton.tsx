@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
-import { getPriceAlerts, setPriceAlert, removePriceAlert, type PriceAlert } from "../lib/firebase";
+import { useState, useCallback } from "react";
+import { setPriceAlert, removePriceAlert, type PriceAlert } from "../lib/firebase";
 import { useUserStore } from "../store/userStore";
 import { useToastStore } from "../store/toastStore";
 import { useQueryClient } from "@tanstack/react-query";

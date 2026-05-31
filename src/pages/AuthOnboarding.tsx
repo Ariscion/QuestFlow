@@ -132,36 +132,36 @@ export default function AuthOnboarding() {
   }
 
   return (
-    <div className="min-h-screen w-full flex flex-col md:flex-row bg-[#030712] overflow-hidden selection:bg-cyan-500/30">
+    <div className="min-h-screen w-full flex flex-col md:flex-row bg-slate-950 overflow-hidden selection:bg-blue-500/30">
       
       {/* ЛЕВАЯ ЧАСТЬ - ВИЗУАЛ & БРЕНДИНГ */}
-      <div className="hidden md:flex flex-1 relative flex-col justify-between p-12 border-r border-white/5 overflow-hidden">
+      <div className="hidden md:flex flex-1 relative flex-col justify-between p-12 border-r border-slate-800/60 overflow-hidden">
         {/* Background Effects */}
-        <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-cyan-500/20 rounded-full blur-[140px] -translate-x-1/2 -translate-y-1/2 mix-blend-screen pointer-events-none animate-pulse" style={{ animationDuration: '8s' }} />
-        <div className="absolute bottom-0 right-0 w-[700px] h-[700px] bg-indigo-600/20 rounded-full blur-[160px] translate-x-1/3 translate-y-1/3 mix-blend-screen pointer-events-none animate-pulse" style={{ animationDuration: '10s' }} />
+        <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-blue-600/5 rounded-full blur-[140px] -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
+        <div className="absolute bottom-0 right-0 w-[700px] h-[700px] bg-cyan-600/5 rounded-full blur-[160px] translate-x-1/3 translate-y-1/3 pointer-events-none" />
         
         {/* Grid pattern */}
-        <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "radial-gradient(circle at center, white 1px, transparent 1px)", backgroundSize: "32px 32px" }} />
+        <div className="absolute inset-0 opacity-5" style={{ backgroundImage: "radial-gradient(circle at center, white 1px, transparent 1px)", backgroundSize: "32px 32px" }} />
 
         <div className="relative z-10 flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center shadow-[0_0_30px_rgba(34,211,238,0.5)] border border-white/20">
+            <div className="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center border border-blue-500/30">
                 <span className="text-2xl font-black text-white drop-shadow-md">Q</span>
             </div>
             <span className="text-3xl font-black tracking-tight text-white drop-shadow-lg">QuestFlow</span>
         </div>
 
         <div className="relative z-10 max-w-lg">
-            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-1.5 text-xs font-bold text-cyan-200 mb-6 backdrop-blur-md shadow-lg shadow-cyan-500/5">
+            <div className="inline-flex items-center gap-2 rounded-full border border-slate-800 bg-slate-900 px-4 py-1.5 text-xs font-bold text-slate-300 mb-6">
                 <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
                 </span>
                 {t('auth.cloud_tracker')}
             </div>
             
             <h1 className="text-5xl lg:text-6xl font-black text-white leading-[1.1] mb-6 tracking-tight drop-shadow-xl">
                 {t('auth.hero_title_1')} <br/>
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-blue-400 to-indigo-400">{t('auth.hero_title_2')}</span>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">{t('auth.hero_title_2')}</span>
             </h1>
             
             <p className="text-xl text-white/60 leading-relaxed font-medium">
@@ -170,9 +170,9 @@ export default function AuthOnboarding() {
             
             <div className="mt-14 flex items-center gap-6">
                 <div className="flex -space-x-4">
-                    <div className="w-12 h-12 rounded-full border-2 border-[#030712] bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center text-sm font-bold text-white shadow-xl">Steam</div>
-                    <div className="w-12 h-12 rounded-full border-2 border-[#030712] bg-gradient-to-br from-gray-700 to-black flex items-center justify-center text-sm font-bold text-white shadow-xl">Epic</div>
-                    <div className="w-12 h-12 rounded-full border-2 border-[#030712] bg-gradient-to-br from-fuchsia-500 to-purple-600 flex items-center justify-center text-sm font-bold text-white shadow-xl">GOG</div>
+                    <div className="w-12 h-12 rounded-full border-2 border-slate-950 bg-slate-800 flex items-center justify-center text-sm font-bold text-slate-300">Steam</div>
+                    <div className="w-12 h-12 rounded-full border-2 border-slate-950 bg-slate-900 flex items-center justify-center text-sm font-bold text-slate-300">Epic</div>
+                    <div className="w-12 h-12 rounded-full border-2 border-slate-950 bg-slate-800 flex items-center justify-center text-sm font-bold text-slate-300">GOG</div>
                 </div>
                 <div className="text-sm font-semibold text-white/50 leading-tight">
                     {t('auth.stores_support_1')} <br/><span className="text-white/80">{t('auth.stores_support_2')}</span>
@@ -182,10 +182,10 @@ export default function AuthOnboarding() {
       </div>
 
       {/* ПРАВАЯ ЧАСТЬ - ФОРМА АВТОРИЗАЦИИ */}
-      <div className="flex-1 flex flex-col justify-center items-center p-6 sm:p-12 relative z-10 bg-[#0a0f18]/80 backdrop-blur-2xl">
+      <div className="flex-1 flex flex-col justify-center items-center p-6 sm:p-12 relative z-10 bg-slate-950">
         {/* Mobile Header */}
         <div className="md:hidden flex items-center gap-3 mb-10 mt-6">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center shadow-[0_0_20px_rgba(34,211,238,0.4)]">
+            <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center">
                 <span className="text-xl font-black text-white">Q</span>
             </div>
             <span className="text-2xl font-black tracking-tight text-white">QuestFlow</span>
@@ -207,9 +207,8 @@ export default function AuthOnboarding() {
             <button
                 onClick={handleGoogleLogin}
                 disabled={isLoading}
-                className="w-full h-12 relative group flex items-center justify-center gap-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 transition-all duration-300 overflow-hidden shadow-lg"
+                className="w-full h-12 relative group flex items-center justify-center gap-3 rounded-xl bg-slate-900 hover:bg-slate-850 border border-slate-800 transition-all duration-200 overflow-hidden shadow-sm"
             >
-                <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-blue-500/10 via-cyan-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <svg className="w-5 h-5 relative z-10" viewBox="0 0 24 24">
                     <path fill="#ffffff" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
                     <path fill="#ffffff" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
@@ -222,9 +221,9 @@ export default function AuthOnboarding() {
             </button>
 
             <div className="flex items-center gap-4 my-8">
-                <div className="flex-1 h-px bg-gradient-to-r from-transparent to-white/10" />
-                <span className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">{t('auth.or_by_email')}</span>
-                <div className="flex-1 h-px bg-gradient-to-l from-transparent to-white/10" />
+                <div className="flex-1 h-px bg-slate-850" />
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">{t('auth.or_by_email')}</span>
+                <div className="flex-1 h-px bg-slate-850" />
             </div>
 
             {/* Form */}
@@ -234,7 +233,7 @@ export default function AuthOnboarding() {
                         <input
                             type="email"
                             placeholder={t('auth.email_placeholder')}
-                            className={`w-full pl-4 pr-4 py-3.5 bg-black/40 border ${errors.email ? 'border-red-500/50 focus:border-red-500/50' : 'border-white/10 focus:border-cyan-500/50 hover:border-white/20'} rounded-xl transition-all outline-none text-white text-sm placeholder:text-white/30 focus:bg-black/60 shadow-inner`}
+                            className={`w-full pl-4 pr-4 py-3.5 bg-slate-900 border ${errors.email ? 'border-red-500/50 focus:border-red-500/50' : 'border-slate-800 focus:border-blue-500/50 hover:border-slate-750'} rounded-xl transition-all outline-none text-white text-sm placeholder:text-slate-500 focus:bg-slate-950 shadow-inner`}
                             {...register("email")}
                         />
                         {errors.email && (
@@ -245,7 +244,7 @@ export default function AuthOnboarding() {
                         <input
                             type="password"
                             placeholder={t('auth.password_placeholder')}
-                            className={`w-full pl-4 pr-4 py-3.5 bg-black/40 border ${errors.password ? 'border-red-500/50 focus:border-red-500/50' : 'border-white/10 focus:border-cyan-500/50 hover:border-white/20'} rounded-xl transition-all outline-none text-white text-sm placeholder:text-white/30 focus:bg-black/60 shadow-inner`}
+                            className={`w-full pl-4 pr-4 py-3.5 bg-slate-900 border ${errors.password ? 'border-red-500/50 focus:border-red-500/50' : 'border-slate-800 focus:border-blue-500/50 hover:border-slate-750'} rounded-xl transition-all outline-none text-white text-sm placeholder:text-slate-500 focus:bg-slate-950 shadow-inner`}
                             {...register("password")}
                         />
                         {errors.password && (
@@ -259,7 +258,7 @@ export default function AuthOnboarding() {
                         <button 
                             type="button" 
                             onClick={handleForgotPassword}
-                            className="text-xs font-semibold text-white/40 hover:text-cyan-400 transition-colors"
+                            className="text-xs font-semibold text-slate-500 hover:text-blue-400 transition-colors"
                         >
                             {t('auth.forgot_password')}
                         </button>
@@ -269,7 +268,7 @@ export default function AuthOnboarding() {
                 <button 
                     type="submit" 
                     disabled={isLoading}
-                    className="w-full h-12 mt-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-base rounded-xl transition-all active:scale-[0.98] shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:shadow-[0_0_30px_rgba(6,182,212,0.6)] disabled:opacity-50 disabled:pointer-events-none"
+                    className="w-full h-12 mt-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-base rounded-xl transition-all active:scale-[0.98] border border-blue-500/30 shadow-sm disabled:opacity-50 disabled:pointer-events-none"
                 >
                     {isLoading ? t('auth.processing') : isRegistering ? t('auth.register') : t('auth.login')}
                 </button>
@@ -280,21 +279,21 @@ export default function AuthOnboarding() {
                 <button 
                     type="button" 
                     onClick={() => setIsRegistering(!isRegistering)}
-                    className="font-bold text-white hover:text-cyan-400 transition-colors underline decoration-white/30 underline-offset-4"
+                    className="font-bold text-white hover:text-blue-400 transition-colors underline decoration-white/30 underline-offset-4"
                 >
                     {isRegistering ? t('auth.sign_in') : t('auth.create_account')}
                 </button>
             </div>
 
-            <div className="mt-12 pt-8 border-t border-white/5 text-center">
+            <div className="mt-12 pt-8 border-t border-slate-850 text-center">
                 <button
                     onClick={handleGuestMode}
                     disabled={isLoading}
-                    className="group relative inline-flex items-center justify-center gap-2 text-xs font-bold text-white/40 hover:text-white uppercase tracking-widest transition-all"
+                    className="group relative inline-flex items-center justify-center gap-2 text-xs font-bold text-slate-500 hover:text-slate-300 uppercase tracking-widest transition-all"
                 >
-                    <span className="w-8 h-px bg-white/20 group-hover:w-12 transition-all duration-300" />
+                    <span className="w-8 h-px bg-slate-800 group-hover:w-12 transition-all duration-300" />
                     {t('auth.offline_mode')}
-                    <span className="w-8 h-px bg-white/20 group-hover:w-12 transition-all duration-300" />
+                    <span className="w-8 h-px bg-slate-800 group-hover:w-12 transition-all duration-300" />
                 </button>
             </div>
 

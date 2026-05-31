@@ -41,7 +41,7 @@ export default function Store() {
 
     return (
         <div className="h-full flex flex-col gap-5 overflow-hidden">
-            <Panel className="p-6 flex-1 overflow-y-auto overflow-x-hidden relative bg-gradient-to-br from-indigo-950/20 via-black/40 to-blue-950/20">
+            <Panel className="p-6 flex-1 overflow-y-auto overflow-x-hidden">
                 <div className="flex flex-col gap-4 mb-6 relative z-10 shrink-0">
                     <div className="flex items-center justify-between">
                         <div className="text-sm text-white/75 font-semibold">
@@ -79,18 +79,8 @@ export default function Store() {
                         deals.map((deal) => (
                             <div key={deal.id} className="relative group cursor-pointer" onClick={() => handleCardClick(deal.id, deal.title)}>
 
-                                {/* AMBIENT ПОДСВЕТКА */}
-                                <div
-                                    className="absolute -inset-1 rounded-3xl blur-2xl opacity-20 group-hover:opacity-60 transition duration-500 z-0"
-                                    style={{
-                                        backgroundImage: `url(${deal.thumb})`,
-                                        backgroundSize: 'cover',
-                                        backgroundPosition: 'center'
-                                    }}
-                                />
-
                                 {/* САМА КАРТОЧКА */}
-                                <Card className="relative z-10 p-4 flex flex-col sm:flex-row gap-5 items-center bg-[#0a0f18]/80 border border-white/5 hover:border-white/20 backdrop-blur-xl transition-all">
+                                <Card className="relative z-10 p-4 flex flex-col sm:flex-row gap-5 items-center bg-slate-900 border border-slate-800/60 hover:border-slate-750 transition-all shadow-sm">
 
                                     {/* ОБЛОЖКА */}
                                     <div className="w-full sm:w-40 h-24 rounded-xl overflow-hidden shrink-0 bg-black/50 shadow-[0_8px_30px_rgb(0,0,0,0.5)] z-10">
@@ -116,7 +106,7 @@ export default function Store() {
                                     {/* КНОПКА СРАВНЕНИЯ ЦЕН */}
                                     <div className="flex gap-3 w-full sm:w-auto shrink-0 z-10">
                                         <Button
-                                            className="w-full sm:w-auto flex flex-col items-center py-2 px-6 bg-gradient-to-r from-blue-600/80 to-indigo-600/80 hover:from-blue-500 hover:to-indigo-500 text-white border border-white/10 shadow-[0_0_15px_rgba(59,130,246,0.3)] group-hover:shadow-[0_0_25px_rgba(59,130,246,0.6)] backdrop-blur-md transition-all rounded-xl"
+                                            className="w-full sm:w-auto flex flex-col items-center py-2 px-6 bg-blue-600 hover:bg-blue-500 text-white border border-blue-500/30 transition-all rounded-xl shadow-md"
                                         >
                                             <span className="text-[10px] uppercase tracking-wider opacity-70 mb-0.5 flex items-center gap-1">
                                                 {t('store.deal.compare_prices')}
@@ -128,7 +118,7 @@ export default function Store() {
                             </div>
                         ))
                     ) : (
-                        <div className="text-center p-12 text-white/50 border border-white/5 rounded-2xl bg-black/20">
+                        <div className="text-center p-12 text-slate-500 border border-slate-800 rounded-2xl bg-slate-950/40">
                             {searchQuery ? t('store.empty.not_found') : t('store.empty.start_typing')}
                         </div>
                     )}

@@ -42,16 +42,14 @@ export default function Library() {
         <div className="h-full flex flex-col gap-5 overflow-hidden">
             <div className="flex flex-col xl:flex-row gap-5 shrink-0">
                 {/* ПРОФИЛЬ И ОПЫТ */}
-                <Panel className="p-6 flex-1 bg-gradient-to-br from-blue-950/40 via-indigo-900/20 to-purple-900/20 border-blue-500/20 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl mix-blend-screen pointer-events-none" />
+                <Panel className="p-6 flex-1 border-slate-800 bg-slate-900 relative overflow-hidden">
                     <div className="flex flex-col sm:flex-row items-center gap-6 relative z-10">
                         <div className="flex items-center gap-5">
-                            <div className="relative group">
-                                <div className="absolute -inset-0.5 bg-gradient-to-tr from-cyan-400 to-blue-600 rounded-full blur opacity-60 group-hover:opacity-100 transition duration-500" />
-                                <div className="w-16 h-16 relative rounded-full bg-slate-900 flex items-center justify-center border-2 border-slate-800">
-                                    <span className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-br from-cyan-300 to-blue-500">{userLevel}</span>
+                            <div className="relative">
+                                <div className="w-16 h-16 relative rounded-full bg-slate-950 flex items-center justify-center border-2 border-slate-800">
+                                    <span className="text-2xl font-black text-blue-400">{userLevel}</span>
                                 </div>
-                                <div className="absolute -bottom-1 -right-1 bg-blue-500 text-[9px] uppercase font-bold px-1.5 py-0.5 rounded text-white shadow-lg">Lvl</div>
+                                <div className="absolute -bottom-1 -right-1 bg-blue-600 text-[9px] uppercase font-bold px-1.5 py-0.5 rounded text-white shadow-sm">Lvl</div>
                             </div>
                             <div className="text-center sm:text-left">
                                 <div className="text-lg font-black text-white drop-shadow-md">{user?.name ?? t('library.profile.default_name')}</div>
@@ -64,25 +62,22 @@ export default function Library() {
                                 <span className="text-cyan-300 drop-shadow-[0_0_5px_rgba(34,211,238,0.5)]">{userXP} XP</span>
                                 <span>{xpToNextLevel} XP</span>
                             </div>
-                            <div className="w-full h-3 bg-black/60 rounded-full overflow-hidden border border-white/10 shadow-inner relative">
-                                <div className="absolute inset-0 bg-white/5" />
+                            <div className="w-full h-3 bg-slate-950 rounded-full overflow-hidden border border-slate-800 relative">
                                 <div
-                                    className="h-full bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-500 transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(34,211,238,0.8)] relative"
+                                    className="h-full bg-gradient-to-r from-blue-600 to-cyan-500 transition-all duration-1000 ease-out"
                                     style={{ width: `${xpPercentage}%` }}
-                                >
-                                    <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.2)_50%,transparent_75%,transparent_100%)] bg-[length:20px_20px] animate-[shine_2s_linear_infinite]" />
-                                </div>
+                                />
                             </div>
                         </div>
                     </div>
                 </Panel>
 
                 {/* СТАТИСТИКА БИБЛИОТЕКИ */}
-                <Panel className="p-6 xl:w-[400px] bg-gradient-to-br from-emerald-950/30 to-teal-900/10 border-emerald-500/20 flex flex-col justify-center">
+                <Panel className="p-6 xl:w-[400px] border-slate-800 bg-slate-900 flex flex-col justify-center">
                     <div className="flex items-center justify-between gap-4">
                         <div>
                             <div className="text-xs text-emerald-400/80 uppercase tracking-wider mb-1 font-bold">{t('library.stats.saved')}</div>
-                            <div className="text-2xl font-black text-emerald-400 drop-shadow-[0_0_15px_rgba(52,211,153,0.4)]">
+                            <div className="text-2xl font-black text-emerald-400">
                                 {totalSavedLocal.toLocaleString('ru-RU')} {currencyInfo.symbol}
                             </div>
                             <div className="text-[10px] text-white/40 mt-1">{t('library.stats.real_cost')} <span className="line-through">{totalRetailLocal.toLocaleString('ru-RU')} {currencyInfo.symbol}</span></div>
@@ -90,7 +85,7 @@ export default function Library() {
                         <div className="h-12 w-px bg-white/10" />
                         <div className="text-right">
                             <div className="text-xs text-blue-400/80 uppercase tracking-wider mb-1 font-bold">{t('library.stats.in_library')}</div>
-                            <div className="text-3xl font-black text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">
+                            <div className="text-3xl font-black text-white">
                                 {library.length} <span className="text-sm font-normal text-white/50">{t('library.stats.games')}</span>
                             </div>
                         </div>
@@ -98,8 +93,8 @@ export default function Library() {
                 </Panel>
             </div>
 
-            <Panel className="p-6 flex-1 overflow-y-auto relative bg-black/20">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 border-b border-white/5 pb-4">
+            <Panel className="p-6 flex-1 overflow-y-auto relative bg-slate-900/40 border border-slate-800/60">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 border-b border-slate-800 pb-4">
                     <div className="flex gap-6">
                         <button 
                             onClick={() => setActiveTab("library")}
@@ -117,13 +112,13 @@ export default function Library() {
                             )}
                         </button>
                     </div>
-                    <Pill className="bg-white/5 text-white/70 border-white/10 self-start sm:self-auto">
+                    <Pill className="self-start sm:self-auto bg-slate-950 border-slate-800 text-slate-300">
                         {activeTab === "library" ? t('library.stats.games_count', { count: library.length }) : t('library.stats.wishlist_count', { count: wishlist?.length || 0 })}
                     </Pill>
                 </div>
 
                 {displayedGames.length === 0 ? (
-                    <div className="h-64 flex flex-col items-center justify-center text-center border-2 border-dashed border-white/10 rounded-2xl bg-white/[0.02] px-6">
+                    <div className="h-64 flex flex-col items-center justify-center text-center border border-slate-800 rounded-2xl bg-slate-950/40 px-6">
                         <div className="text-4xl mb-4 opacity-50">{activeTab === "library" ? "🎮" : "🤍"}</div>
                         <div className="text-lg font-medium text-white/70 mb-2">
                             {activeTab === "library" ? t('library.empty.library') : t('library.empty.wishlist')}
@@ -142,7 +137,7 @@ export default function Library() {
                                 className="relative group cursor-pointer"
                                 onClick={() => navigate(`/game/${game.id}`)}
                             >
-                                <Card className="p-4 flex flex-col gap-4 bg-white/[0.03] hover:bg-white/[0.06] transition-colors border-white/5 hover:border-white/20 transition-all h-full">
+                                <Card className="p-4 flex flex-col gap-4 bg-slate-950/20 hover:bg-slate-950/50 border border-slate-800/60 hover:border-slate-700 transition-all h-full">
                                     <button
                                         onClick={(e) => { 
                                             e.stopPropagation(); 

@@ -21,10 +21,7 @@ body,
 
 body {
   margin: 0;
-  background:
-    radial-gradient(1200px 700px at 70% 30%, rgba(59, 130, 246, 0.18), transparent 55%),
-    radial-gradient(900px 650px at 25% 80%, rgba(168, 85, 247, 0.15), transparent 60%),
-    #05070d;
+  background: #020617;
   color: rgb(229 229 229);
   font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
 }

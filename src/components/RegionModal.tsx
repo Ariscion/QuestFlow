@@ -37,10 +37,10 @@ export default function RegionModal() {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
-      <Card className="w-full max-w-lg p-6 sm:p-8 bg-gradient-to-br from-[#0a0f18] to-slate-900 border border-blue-500/30 shadow-[0_20px_60px_rgba(37,99,235,0.2)] animate-in zoom-in-95 duration-500">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6 bg-slate-950/80 animate-in fade-in duration-300">
+      <Card className="w-full max-w-lg p-6 sm:p-8 bg-slate-900 border border-slate-800 shadow-2xl animate-in zoom-in-95 duration-300">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-12 h-12 rounded-2xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-2xl">
+          <div className="w-12 h-12 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center text-2xl">
             🌍
           </div>
           <div>
@@ -57,7 +57,7 @@ export default function RegionModal() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <button
               onClick={() => handleSelect("KZ")}
-              className="p-3 bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 hover:border-blue-500/50 rounded-xl transition-all text-left group"
+              className="p-3 bg-slate-950/40 hover:bg-slate-850 border border-slate-800 hover:border-slate-700 rounded-xl transition-all text-left group"
             >
               <div className="text-sm font-bold text-white group-hover:text-blue-400">🇰🇿 {t('region_modal.stores.kz')}</div>
               <div className="text-xs text-white/50 mt-0.5">{t('region_modal.currencies.kz')}</div>
@@ -65,7 +65,7 @@ export default function RegionModal() {
             
             <button
               onClick={() => handleSelect("RU")}
-              className="p-3 bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 hover:border-blue-500/50 rounded-xl transition-all text-left group"
+              className="p-3 bg-slate-950/40 hover:bg-slate-850 border border-slate-800 hover:border-slate-700 rounded-xl transition-all text-left group"
             >
               <div className="text-sm font-bold text-white group-hover:text-blue-400">🇷🇺 {t('region_modal.stores.ru')}</div>
               <div className="text-xs text-white/50 mt-0.5">{t('region_modal.currencies.ru')}</div>
@@ -73,7 +73,7 @@ export default function RegionModal() {
             
             <button
               onClick={() => handleSelect("TR")}
-              className="p-3 bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 hover:border-blue-500/50 rounded-xl transition-all text-left group"
+              className="p-3 bg-slate-950/40 hover:bg-slate-850 border border-slate-800 hover:border-slate-700 rounded-xl transition-all text-left group"
             >
               <div className="text-sm font-bold text-white group-hover:text-blue-400">🇹🇷 {t('region_modal.stores.tr')}</div>
               <div className="text-xs text-white/50 mt-0.5">{t('region_modal.currencies.tr')}</div>
@@ -81,7 +81,7 @@ export default function RegionModal() {
             
             <button
               onClick={() => handleSelect("UA")}
-              className="p-3 bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 hover:border-blue-500/50 rounded-xl transition-all text-left group"
+              className="p-3 bg-slate-950/40 hover:bg-slate-850 border border-slate-800 hover:border-slate-700 rounded-xl transition-all text-left group"
             >
               <div className="text-sm font-bold text-white group-hover:text-blue-400">🇺🇦 {t('region_modal.stores.ua')}</div>
               <div className="text-xs text-white/50 mt-0.5">{t('region_modal.currencies.ua')}</div>
@@ -89,7 +89,7 @@ export default function RegionModal() {
             
             <button
               onClick={() => handleSelect("US")}
-              className="p-3 bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 hover:border-blue-500/50 rounded-xl transition-all text-left group sm:col-span-2"
+              className="p-3 bg-slate-950/40 hover:bg-slate-850 border border-slate-800 hover:border-slate-700 rounded-xl transition-all text-left group sm:col-span-2"
             >
               <div className="text-sm font-bold text-white group-hover:text-blue-400">🌐 {t('region_modal.stores.other')}</div>
               <div className="text-xs text-white/50 mt-0.5">{t('region_modal.currencies.other')}</div>

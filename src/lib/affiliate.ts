@@ -17,7 +17,15 @@ const AFFILIATE_ID = import.meta.env.VITE_CHEAPSHARK_AFFILIATE_ID ?? "";
  * @returns Full redirect URL to the store
  */
 export function getDealUrl(dealID: string): string {
-    const base = `https://www.cheapshark.com/redirect?dealID=${encodeURIComponent(dealID)}`;
+    let rawDealID = dealID;
+    try {
+        if (dealID.includes("%")) {
+            rawDealID = decodeURIComponent(dealID);
+        }
+    } catch (e) {
+        console.error(e);
+    }
+    const base = `https://www.cheapshark.com/redirect?dealID=${encodeURIComponent(rawDealID)}`;
     return AFFILIATE_ID ? `${base}&affid=${AFFILIATE_ID}` : base;
 }
 

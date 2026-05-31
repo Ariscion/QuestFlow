@@ -63,14 +63,14 @@ export default function Downloads() {
 
     return (
         <div className="h-full overflow-y-auto">
-            <Panel className="p-8 md:p-10 bg-black/20 min-h-full flex flex-col justify-center gap-10">
+            <Panel className="p-8 md:p-10 min-h-full flex flex-col justify-center gap-10">
                 <section className="max-w-3xl mx-auto text-center">
-                    <div className="inline-flex items-center gap-2 rounded-full border border-blue-400/20 bg-blue-500/10 px-3 py-1 text-xs font-semibold text-blue-200 mb-5">
-                        <span className="w-2 h-2 rounded-full bg-blue-300 animate-pulse" />
+                    <div className="inline-flex items-center gap-2 rounded-full border border-slate-800 bg-slate-950 px-3 py-1 text-xs font-semibold text-slate-300 mb-5">
+                        <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
                         {isInstalled ? t('downloads.status.installed') : t('downloads.status.ready')}
                     </div>
 
-                    <h1 className="text-4xl md:text-6xl font-black tracking-tight mb-4 bg-gradient-to-r from-cyan-300 via-blue-300 to-indigo-300 bg-clip-text text-transparent">
+                    <h1 className="text-4xl md:text-6xl font-black tracking-tight mb-4 bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
                         QuestFlow Desktop
                     </h1>
 
@@ -83,10 +83,10 @@ export default function Downloads() {
                             onClick={handleInstallClick}
                             className={`px-8 py-3.5 text-base md:text-lg font-semibold text-white transition-all ${
                                 isInstalled 
-                                ? "bg-emerald-600 hover:bg-emerald-700" 
+                                ? "bg-emerald-600 hover:bg-emerald-500" 
                                 : isInstallable 
-                                ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 shadow-lg shadow-blue-500/25" 
-                                : "bg-white/10 hover:bg-white/20 text-white/90"
+                                ? "bg-blue-600 hover:bg-blue-500 shadow-sm" 
+                                : "bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-750"
                             }`}
                         >
                             {isInstalled ? t('downloads.button.installed') : t('downloads.button.download')}
@@ -104,7 +104,7 @@ export default function Downloads() {
                     {features.map((feature) => (
                         <Card
                             key={feature.title}
-                            className="p-5 bg-white/[0.03] border-white/10 hover:bg-white/[0.05] transition-colors"
+                            className="p-5 bg-slate-950/20 border border-slate-800/60 hover:border-slate-750 transition-colors"
                         >
                             <div className="text-lg font-bold text-white mb-2">{feature.title}</div>
                             <div className="text-sm text-white/60 leading-relaxed">{feature.description}</div>

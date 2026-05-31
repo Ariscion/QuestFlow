@@ -16,14 +16,14 @@ type RailItemProps = {
 };
 
 function RailItem({ to, icon, disabled = false }: RailItemProps) {
-    const base = "w-10 h-10 rounded-[14px] border border-white/10 bg-white/[0.05] flex items-center justify-center shrink-0";
+    const base = "w-10 h-10 rounded-[14px] border border-slate-800 bg-slate-950/40 flex items-center justify-center shrink-0 transition-all duration-200";
     if (disabled) return <div className={cn(base, "opacity-40")}>{icon}</div>;
 
     return (
         <NavLink
             to={to}
             className={({ isActive }) =>
-                cn(base, isActive ? "bg-white/[0.10] border-white/[0.18] shadow-[0_0_15px_rgba(255,255,255,0.05)]" : "hover:bg-white/[0.08]")
+                cn(base, isActive ? "bg-slate-800 border-slate-700 text-white" : "hover:bg-slate-850 hover:border-slate-750 text-white/70")
             }
         >
             {icon}
@@ -76,18 +76,18 @@ export default function Layout() {
     }
 
     return (
-        <div className="h-[100dvh] w-full flex items-center justify-center sm:p-6 bg-neutral-950 sm:bg-transparent overflow-hidden">
-            <div className="w-full h-full sm:w-[1180px] sm:max-w-[96vw] sm:h-[720px] sm:max-h-[92vh] flex flex-col-reverse sm:flex-row overflow-hidden sm:rounded-3xl sm:border border-neutral-800 bg-neutral-900/65 shadow-none sm:shadow-[0_20px_60px_rgba(0,0,0,0.5)] backdrop-blur-xl relative">
+        <div className="h-[100dvh] w-full flex items-center justify-center sm:p-6 bg-slate-950 sm:bg-transparent overflow-hidden">
+            <div className="w-full h-full sm:w-[1180px] sm:max-w-[96vw] sm:h-[720px] sm:max-h-[92vh] flex flex-col-reverse sm:flex-row overflow-hidden sm:rounded-3xl sm:border border-slate-800 bg-slate-900 shadow-xl relative">
                 {/* Rail / Bottom Bar */}
-                <div className="w-full sm:w-[88px] h-[72px] sm:h-auto p-2 sm:p-4 flex flex-row sm:flex-col items-center justify-center sm:justify-start border-t sm:border-t-0 sm:border-r border-white/10 shrink-0 bg-neutral-900/95 sm:bg-transparent pb-[env(safe-area-inset-bottom)] sm:pb-4 z-50">
+                <div className="w-full sm:w-[88px] h-[72px] sm:h-auto p-2 sm:p-4 flex flex-row sm:flex-col items-center justify-center sm:justify-start border-t sm:border-t-0 sm:border-r border-slate-800 shrink-0 bg-slate-900 pb-[env(safe-area-inset-bottom)] sm:pb-4 z-50">
                     {isAuthed && user?.avatar ? (
                         <img
                             src={user.avatar}
                             alt="Profile"
-                            className="hidden sm:block w-12 h-12 shrink-0 rounded-[16px] border border-white/10 object-cover shadow-inner"
+                            className="hidden sm:block w-12 h-12 shrink-0 rounded-[16px] border border-slate-800 object-cover"
                         />
                     ) : (
-                        <div className="hidden sm:flex w-12 h-12 shrink-0 rounded-[16px] border border-white/10 bg-gradient-to-br from-blue-600/20 to-cyan-600/10 items-center justify-center text-white/90 font-bold shadow-inner">
+                        <div className="hidden sm:flex w-12 h-12 shrink-0 rounded-[16px] border border-slate-800 bg-slate-950 items-center justify-center text-white/90 font-bold">
                             QF
                         </div>
                     )}
@@ -200,7 +200,7 @@ function TopBar() {
                     onFocus={handleSearchFocus}
                     onKeyDown={handleKeyDown}
                     placeholder={t('common.search_placeholder')}
-                    className="w-full rounded-full border border-white/8 bg-[#ffffff05] py-3 sm:py-2 pl-11 pr-4 text-sm text-white/80 placeholder:text-white/35 shadow-none outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/30 transition-all focus:bg-[#ffffff0a]"
+                    className="w-full rounded-full border border-slate-800 bg-slate-950 py-3 sm:py-2 pl-11 pr-4 text-sm text-white/80 placeholder:text-slate-500 shadow-none outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/10 transition-all"
                 />
             </div>
         </div>

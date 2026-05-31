@@ -42,11 +42,7 @@ const HeroDealCard = memo(function HeroDealCard({ deal, onOpenDeal }: DealCardPr
       className="relative group cursor-pointer text-left w-full focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-3xl"
       onClick={handleOpen}
     >
-      <div
-        className="absolute -inset-2 rounded-4xl blur-3xl opacity-30 group-hover:opacity-60 transition duration-700 z-0"
-        style={{ backgroundImage: `url(${deal.thumb})`, backgroundSize: "cover" }}
-      />
-      <Card className="relative z-10 p-0 overflow-hidden rounded-3xl border border-white/10 hover:border-blue-500/50 transition-all bg-black/60 shadow-2xl flex flex-col md:flex-row">
+      <Card className="relative z-10 p-0 overflow-hidden rounded-3xl border border-slate-800 hover:border-slate-700 transition-all bg-slate-900 shadow-xl flex flex-col md:flex-row">
         <div className="md:w-1/2 lg:w-[60%] h-48 md:h-72 overflow-hidden relative">
           <GameCover
             src={deal.thumb}
@@ -55,18 +51,18 @@ const HeroDealCard = memo(function HeroDealCard({ deal, onOpenDeal }: DealCardPr
             alt={deal.title}
             className="w-full h-full transform group-hover:scale-105 transition-transform duration-700"
           />
-          <div className="absolute top-4 left-4 bg-red-600 text-white font-black px-4 py-1.5 rounded-full text-sm shadow-lg shadow-red-900/50 animate-pulse">
+          <div className="absolute top-4 left-4 bg-red-600 text-white font-black px-4 py-1.5 rounded-full text-sm shadow-lg animate-pulse">
             {t('home.hero.discount_of_day', { percent: savingsPercent })}
           </div>
         </div>
-        <div className="p-8 md:w-1/2 lg:w-[40%] flex flex-col justify-center backdrop-blur-md bg-linear-to-l from-[#0f172a] to-transparent">
+        <div className="p-8 md:w-1/2 lg:w-[40%] flex flex-col justify-center bg-slate-900">
           <h2 className="text-3xl font-black text-white leading-tight mb-2 group-hover:text-blue-300 transition-colors">{deal.title}</h2>
           <p className="text-gray-400 mb-6 line-through text-lg">${deal.normalPrice}</p>
 
           <div className="flex items-center gap-4 mt-auto">
             <Button
               type="button"
-              className="flex-1 bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white py-4 rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.4)] text-lg"
+              className="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-4 rounded-xl shadow-md text-lg"
             >
               {t('home.hero.compare_prices', { price: salePriceLabel })}
             </Button>
@@ -94,18 +90,14 @@ const DealGridCard = memo(function DealGridCard({ deal, onOpenDeal }: DealCardPr
       className="relative group cursor-pointer text-left w-full focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-2xl"
       onClick={handleOpen}
     >
-      <div
-        className="absolute -inset-1 rounded-2xl blur-xl opacity-20 group-hover:opacity-50 transition duration-500 z-0"
-        style={{ backgroundImage: `url(${deal.thumb})`, backgroundSize: "cover" }}
-      />
-      <Card className="relative z-10 h-full p-4 flex flex-col bg-[#0a0f18]/90 border border-white/5 hover:border-white/20 backdrop-blur-xl transition-all rounded-2xl">
+      <Card className="relative z-10 h-full p-4 flex flex-col bg-slate-900 border border-slate-800 hover:border-slate-700 transition-all rounded-2xl shadow-sm">
         <div className="w-full h-32 rounded-xl overflow-hidden mb-4 relative">
           <GameCover
             src={deal.thumb}
             alt={deal.title}
             className="w-full h-full transform group-hover:scale-110 transition-transform duration-500"
           />
-          <div className="absolute bottom-2 right-2 bg-red-600/90 backdrop-blur-sm text-white font-bold px-2 py-1 rounded-lg text-xs">
+          <div className="absolute bottom-2 right-2 bg-red-600 text-white font-bold px-2 py-1 rounded-lg text-xs">
             -{savingsPercent}%
           </div>
         </div>
@@ -117,7 +109,7 @@ const DealGridCard = memo(function DealGridCard({ deal, onOpenDeal }: DealCardPr
             <span className="text-xs text-gray-500 line-through">${deal.normalPrice}</span>
             <span className="text-xl font-black text-emerald-400">{salePriceLabel}</span>
           </div>
-          <div className="bg-white/10 hover:bg-white/20 p-2 rounded-lg text-white/70 transition-colors">
+          <div className="bg-slate-800 hover:bg-slate-700 p-2 rounded-lg text-white/70 transition-colors">
             →
           </div>
         </div>
@@ -164,7 +156,7 @@ export default function Home() {
 
   return (
     <div className="h-full flex flex-col gap-5 overflow-hidden">
-      <Panel className="p-6 flex-1 overflow-y-auto overflow-x-hidden bg-linear-to-br from-indigo-950/20 via-black/40 to-purple-950/20">
+      <Panel className="p-6 flex-1 overflow-y-auto overflow-x-hidden">
 
         <div className="flex flex-col gap-4 mb-6 relative z-10 shrink-0">
           <div className="flex items-center justify-between">

@@ -15,14 +15,14 @@ export default function Notifications() {
       <div className="h-full flex flex-col gap-5">
         <div className="text-sm text-white/65 font-semibold">{t('notifications.title')}</div>
 
-        <Panel className="p-6 grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 bg-black/20">
+        <Panel className="p-6 grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6">
           <div className="space-y-3">
             
             {/* Dynamic Deal Notification */}
             {isLoading ? (
-                <Card className="p-4 bg-white/[0.02] border-white/5 animate-pulse h-28" />
+                <Card className="p-4 bg-slate-950/40 border border-slate-800/60 animate-pulse h-28" />
             ) : topDeal ? (
-                <Card className="p-4 bg-white/[0.02] border-white/5 hover:border-white/10 transition-colors">
+                <Card className="p-4 bg-slate-950/40 border border-slate-800/60 hover:border-slate-700 transition-colors">
                   <div className="flex items-center justify-between">
                     <div className="text-sm text-white/85 font-semibold flex items-center gap-2">
                       <span className="text-red-400">🔥</span>
@@ -34,7 +34,7 @@ export default function Notifications() {
                     {t('notifications.deal.desc', { savings: Math.round(parseFloat(topDeal.savings)), title: topDeal.title })}
                   </div>
                   <div className="mt-4 flex gap-2">
-                    <Button variant="soft" className="text-xs py-1.5 bg-white/5 hover:bg-white/10">{t('notifications.deal.to_deals')}</Button>
+                    <Button variant="soft" className="text-xs py-1.5">{t('notifications.deal.to_deals')}</Button>
                     <Button variant="ghost" className="text-xs py-1.5 text-white/40 hover:text-white/80">{t('notifications.deal.hide')}</Button>
                   </div>
                 </Card>
@@ -42,7 +42,7 @@ export default function Notifications() {
 
             {/* Level Notification */}
             {userLevel > XP_LEVELING.initialLevel && (
-                <Card className="p-4 bg-white/[0.02] border-white/5 hover:border-white/10 transition-colors">
+                <Card className="p-4 bg-slate-950/40 border border-slate-800/60 hover:border-slate-700 transition-colors">
                   <div className="flex items-center justify-between">
                     <div className="text-sm text-white/85 font-semibold flex items-center gap-2">
                       <span className="text-emerald-400">⭐</span>
@@ -56,7 +56,7 @@ export default function Notifications() {
                 </Card>
             )}
 
-            <Card className="p-4 bg-white/[0.02] border-white/5 hover:border-white/10 transition-colors">
+            <Card className="p-4 bg-slate-950/40 border border-slate-800/60 hover:border-slate-700 transition-colors">
                 <div className="flex items-center justify-between">
                 <div className="text-sm text-white/85 font-semibold flex items-center gap-2">
                     <span className="text-blue-400">👋</span>
@@ -71,19 +71,19 @@ export default function Notifications() {
 
           </div>
 
-          <Panel className="p-5 bg-white/[0.01] border-white/5 h-fit">
+          <Panel className="p-5 bg-slate-950/20 border border-slate-800/60 h-fit">
             <div className="text-sm text-white/75 font-semibold mb-4 flex items-center gap-2">
               <span>📌</span> {t('notifications.pinned.title')}
             </div>
             <div className="space-y-3">
-              <Card className="p-4 bg-green-500/5 border-green-500/10">
-                <div className="text-xs text-green-400/60 uppercase font-bold tracking-wider">{t('notifications.pinned.api_status.label')}</div>
-                <div className="text-sm text-green-400 font-semibold mt-1 flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"/>
+              <Card className="p-4 bg-emerald-950/25 border border-emerald-900/40">
+                <div className="text-xs text-emerald-400/60 uppercase font-bold tracking-wider">{t('notifications.pinned.api_status.label')}</div>
+                <div className="text-sm text-emerald-400 font-semibold mt-1 flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"/>
                   {t('notifications.pinned.api_status.online')}
                 </div>
               </Card>
-              <Card className="p-4 bg-white/[0.02] border-white/5">
+              <Card className="p-4 bg-slate-950/40 border border-slate-800/60">
                 <div className="text-xs text-white/45 uppercase font-bold tracking-wider">{t('notifications.pinned.next_step.label')}</div>
                 <div className="text-sm text-white/70 mt-1 leading-relaxed">
                   {t('notifications.pinned.next_step.desc')}

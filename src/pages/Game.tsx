@@ -127,14 +127,14 @@ export default function Game() {
               <Button
                   variant="soft"
                   onClick={() => nav(-1)}
-                  className="mb-6 bg-black/50 text-white/70 hover:bg-black/70 hover:text-white border-white/10"
+                  className="mb-6 bg-slate-900/80 text-slate-300 hover:bg-slate-850 hover:text-white border-slate-800"
               >
                 {t('game.back')}
               </Button>
               <h1 className="text-3xl sm:text-5xl font-black text-white drop-shadow-xl">{csGame.info.title}</h1>
               <div className="flex flex-wrap gap-2 sm:gap-3 mt-4 items-center">
                 {steamDetails?.genres?.slice(0, 3).map((g) => (
-                    <Pill key={g.id} className="bg-white/10 text-white/80 border-white/20 backdrop-blur-md">
+                    <Pill key={g.id} className="bg-slate-900 text-slate-300 border-slate-800">
                       {g.description}
                     </Pill>
                 ))}
@@ -151,8 +151,8 @@ export default function Game() {
                     onClick={handleToggleWishlist}
                     className={`w-11 h-11 flex items-center justify-center rounded-xl transition-all border shrink-0 ${
                         isInWishlist 
-                            ? "bg-rose-500/20 border-rose-500/50 text-rose-400 hover:bg-rose-500/30" 
-                            : "bg-white/10 border-white/20 text-white/70 hover:bg-white/20 hover:text-white"
+                            ? "bg-rose-950/40 border-rose-500/40 text-rose-400 hover:bg-rose-900/40" 
+                            : "bg-slate-900 border-slate-800 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
                     }`}
                     title={isInWishlist ? t('game.actions.remove_wishlist') : t('game.actions.add_wishlist')}
                 >
@@ -170,7 +170,7 @@ export default function Game() {
 
           {/* Левая колонка */}
           <div className="flex-1 flex flex-col gap-6 sm:gap-8">
-            <Panel className="p-4 sm:p-6 bg-white/[0.02] border-white/5">
+            <Panel className="p-4 sm:p-6">
               <h3 className="text-lg font-bold text-white/90 mb-3">{t('game.about')}</h3>
               <p className="text-white/60 leading-relaxed text-sm">
                 {cleanDescription}
@@ -186,7 +186,7 @@ export default function Game() {
                             key={shot.id}
                             src={shot.path_thumbnail}
                             alt="Screenshot"
-                            className="w-full rounded-xl border border-white/10 hover:scale-105 transition-transform cursor-pointer shadow-lg"
+                            className="w-full rounded-xl border border-slate-800 hover:border-slate-700 hover:scale-[1.02] transition-all cursor-pointer shadow-md"
                         />
                     ))}
                   </div>
@@ -196,7 +196,7 @@ export default function Game() {
 
           {/* Правая колонка: БЛОК АГРЕГАТОРА (Магазины) */}
           <div className="w-full xl:w-[400px] shrink-0 flex flex-col gap-5" id="stores-section">
-            <Panel className="p-6 bg-gradient-to-br from-indigo-900/10 to-blue-900/5 border-blue-500/20 sticky top-4">
+            <Panel className="p-6 border-slate-800 sticky top-4">
               <h3 className="text-xl font-black text-white mb-4">{t('game.price_comparison')}</h3>
               <div className="text-xs text-white/60 bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-3 mb-4 flex items-center gap-2">
                 <span>⚠️</span>
@@ -208,54 +208,57 @@ export default function Game() {
                   csGame.deals
                     .filter((deal: GamePageDeal) => Boolean(STORE_NAMES[deal.storeID]))
                     .map((deal: GamePageDeal, idx: number) => {
-                      const storeName = STORE_NAMES[deal.storeID];
-                      const isDiscount = parseFloat(deal.savings) > 0;
+                      let storeName = STORE_NAMES[deal.storeID];
+                      let discountPercent = Math.round(parseFloat(deal.savings));
+                      let isDiscount = discountPercent > 0;
 
-                    // Steam: if we have regional data from Steam API, prefer it
-                    let priceDisplay = `${deal.price} USD`;
-                    let originalDisplay = `${deal.retailPrice} USD`;
-                    let convertedPrice = "";
-                    let convertedOriginal = "";
+                      // Steam: if we have regional data from Steam API, prefer it
+                      let priceDisplay = `${deal.price} USD`;
+                      let originalDisplay = `${deal.retailPrice} USD`;
+                      let convertedPrice = "";
+                      let convertedOriginal = "";
 
-                    if (storeName === "Steam" && steamDetails?.price_overview) {
-                      priceDisplay = steamDetails.price_overview.final_formatted;
-                      originalDisplay = steamDetails.price_overview.initial_formatted;
-                    } else if (currencyInfo.code !== "USD") {
-                      const localPrice = Math.round(parseFloat(deal.price) * currencyInfo.rateToUSD);
-                      const localRetail = Math.round(parseFloat(deal.retailPrice) * currencyInfo.rateToUSD);
-                      
-                      if (storeName === "Steam" && currencyInfo.code === "RUB") {
-                        priceDisplay = `${localPrice} ₽`;
-                        originalDisplay = `${localRetail} ₽`;
-                      } else {
-                        convertedPrice = `(~${localPrice} ${currencyInfo.symbol})`;
-                        convertedOriginal = `(~${localRetail} ${currencyInfo.symbol})`;
+                      if (storeName === "Steam" && steamDetails?.price_overview) {
+                        priceDisplay = steamDetails.price_overview.final_formatted;
+                        originalDisplay = steamDetails.price_overview.initial_formatted;
+                        discountPercent = steamDetails.price_overview.discount_percent;
+                        isDiscount = discountPercent > 0;
+                      } else if (currencyInfo.code !== "USD") {
+                        const localPrice = Math.round(parseFloat(deal.price) * currencyInfo.rateToUSD);
+                        const localRetail = Math.round(parseFloat(deal.retailPrice) * currencyInfo.rateToUSD);
+                        
+                        if (storeName === "Steam" && currencyInfo.code === "RUB") {
+                          priceDisplay = `${localPrice} ₽`;
+                          originalDisplay = `${localRetail} ₽`;
+                        } else {
+                          convertedPrice = `(~${localPrice} ${currencyInfo.symbol})`;
+                          convertedOriginal = `(~${localRetail} ${currencyInfo.symbol})`;
+                        }
                       }
-                    }
 
-                    return (
-                      <div key={`${deal.storeID}-${idx}`} className="p-3 flex flex-col gap-3 rounded-xl bg-[#0a0f18]/80 hover:bg-white/[0.08] transition-colors border border-white/10 group">
-                        <div className="flex justify-between items-center gap-4">
-                          <div className="min-w-0 flex-1">
-                            <div className="text-sm font-bold text-white/90">{storeName}</div>
-                            <div className="flex flex-col gap-0.5 mt-1">
-                              {isDiscount && (
-                                <div className="flex items-baseline gap-1">
-                                  <span className="text-xs text-white/40 line-through">{originalDisplay}</span>
-                                  {convertedOriginal && <span className="text-[10px] text-white/30 line-through">{convertedOriginal}</span>}
-                                  <span className="text-xs font-bold text-red-400 ml-1.5">-{Math.round(parseFloat(deal.savings))}%</span>
+                      return (
+                        <div key={`${deal.storeID}-${idx}`} className="p-3 flex flex-col gap-3 rounded-xl bg-slate-950/40 hover:bg-slate-850 transition-colors border border-slate-800/60 group">
+                          <div className="flex justify-between items-center gap-4">
+                            <div className="min-w-0 flex-1">
+                              <div className="text-sm font-bold text-white/90">{storeName}</div>
+                              <div className="flex flex-col gap-0.5 mt-1">
+                                {isDiscount && (
+                                  <div className="flex items-baseline gap-1">
+                                    <span className="text-xs text-white/40 line-through">{originalDisplay}</span>
+                                    {convertedOriginal && <span className="text-[10px] text-white/30 line-through">{convertedOriginal}</span>}
+                                    <span className="text-xs font-bold text-red-400 ml-1.5">-{discountPercent}%</span>
+                                  </div>
+                                )}
+                                <div className="flex items-baseline gap-1 flex-wrap">
+                                  <span className="text-lg font-black text-emerald-400">{priceDisplay}</span>
+                                  {convertedPrice && <span className="text-xs font-medium text-emerald-400/70 ml-1">{convertedPrice}</span>}
                                 </div>
-                              )}
-                              <div className="flex items-baseline gap-1 flex-wrap">
-                                <span className="text-lg font-black text-emerald-400">{priceDisplay}</span>
-                                {convertedPrice && <span className="text-xs font-medium text-emerald-400/70 ml-1">{convertedPrice}</span>}
                               </div>
                             </div>
-                          </div>
                           <button
                             type="button"
                             onClick={() => handleStoreClick(deal)}
-                            className="px-4 py-2 text-sm font-bold bg-white/10 hover:bg-blue-600 text-white rounded-lg group-hover:shadow-[0_0_15px_rgba(37,99,235,0.5)] transition-all shrink-0"
+                            className="px-4 py-2 text-sm font-bold bg-slate-800 hover:bg-blue-600 text-white border border-slate-700/50 hover:border-blue-500/30 rounded-lg transition-all shrink-0"
                           >
                             {t('game.open')}
                           </button>
@@ -264,7 +267,7 @@ export default function Game() {
                           <button
                             type="button"
                             onClick={() => handleAddToLibrary(deal)}
-                            className="w-full text-xs py-1.5 border border-white/5 hover:bg-emerald-500/20 hover:text-emerald-400 hover:border-emerald-500/30 transition-all rounded-lg text-white/50"
+                            className="w-full text-xs py-1.5 border border-slate-800 hover:bg-emerald-950/30 hover:text-emerald-400 hover:border-emerald-500/30 transition-all rounded-lg text-slate-500"
                           >
                             {t('game.add_from_store')}
                           </button>

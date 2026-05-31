@@ -34,10 +34,10 @@ export default function ChangelogModal() {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
-      <Card className="w-full max-w-lg p-6 sm:p-8 bg-gradient-to-br from-[#0a0f18] to-slate-900 border border-blue-500/30 shadow-[0_20px_60px_rgba(37,99,235,0.2)] animate-in zoom-in-95 duration-500">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6 bg-slate-950/80 animate-in fade-in duration-300">
+      <Card className="w-full max-w-lg p-6 sm:p-8 bg-slate-900 border border-slate-800 shadow-2xl animate-in zoom-in-95 duration-300">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-12 h-12 rounded-2xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-2xl animate-bounce">
+          <div className="w-12 h-12 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center text-2xl">
             🎉
           </div>
           <div>
@@ -63,7 +63,7 @@ export default function ChangelogModal() {
         <Button
           variant="primary"
           onClick={handleClose}
-          className="w-full h-12 bg-blue-600 hover:bg-blue-500 text-white font-bold text-base rounded-xl shadow-[0_0_20px_rgba(37,99,235,0.4)] transition-all"
+          className="w-full h-12 bg-blue-600 hover:bg-blue-500 text-white font-bold text-base rounded-xl border border-blue-500/30 shadow-sm transition-all"
         >
           {t('changelog.button')}
         </Button>

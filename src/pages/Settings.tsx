@@ -55,18 +55,18 @@ export default function Settings() {
     <div className="h-full flex flex-col gap-5 overflow-y-auto pr-1">
       <div className="text-sm text-white/65 font-semibold">{t('settings.title')}</div>
 
-      <Panel className="p-6 bg-black/20 border-white/10">
+      <Panel className="p-6 border-slate-800">
         <div className="text-xs text-white/45 uppercase font-bold tracking-wider mb-4">{t('settings.profile.title')}</div>
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-4">
-          <Card className="p-4 bg-white/[0.02] border-white/5 flex items-center gap-4">
+          <Card className="p-4 bg-slate-950/40 border border-slate-800/60 flex items-center gap-4">
             {user?.avatar ? (
               <img
                 src={user.avatar}
                 alt="Profile"
-                className="w-16 h-16 shrink-0 rounded-[18px] border border-white/10 object-cover shadow-inner"
+                className="w-16 h-16 shrink-0 rounded-[18px] border border-slate-800 object-cover"
               />
             ) : (
-              <div className="w-16 h-16 shrink-0 rounded-[18px] border border-white/10 bg-gradient-to-br from-blue-600/20 to-cyan-600/10 flex items-center justify-center text-white/90 font-bold shadow-inner">
+              <div className="w-16 h-16 shrink-0 rounded-[18px] border border-slate-800 bg-slate-950 flex items-center justify-center text-white/90 font-bold">
                 QF
               </div>
             )}
@@ -77,7 +77,7 @@ export default function Settings() {
             </div>
           </Card>
 
-          <Card className="p-4 bg-white/[0.02] border-white/5">
+          <Card className="p-4 bg-slate-950/40 border border-slate-800/60">
             <div className="flex items-center justify-between text-sm text-white/80">
               <span>{t('settings.profile.level')}</span>
               <span className="font-bold text-blue-300">{userLevel}</span>
@@ -92,12 +92,12 @@ export default function Settings() {
         </div>
       </Panel>
 
-      <Panel className="p-6 bg-black/20 border-white/10">
+      <Panel className="p-6 border-slate-800">
         <div className="text-xs text-white/45 uppercase font-bold tracking-wider mb-4">{t('settings.interface.title')}</div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
 
-          <Card className="p-4 bg-white/[0.02] border-white/5">
+          <Card className="p-4 bg-slate-950/40 border border-slate-800/60">
             <div className="text-xs text-white/45">{t('settings.interface.animations.title')}</div>
             <div className="mt-3 flex items-center justify-between">
               <span className="text-xs text-white/65">{t('settings.interface.animations.desc')}</span>
@@ -111,13 +111,13 @@ export default function Settings() {
           </Card>
 
 
-          <Card className="p-4 bg-white/[0.02] border-white/5">
+          <Card className="p-4 bg-slate-950/40 border border-slate-800/60">
             <div className="text-xs text-white/45">{t('settings.interface.region.title')}</div>
             <div className="mt-3">
               <select
                 value={currencyInfo.countryCode}
                 onChange={(e) => handleRegionChange(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white/80 outline-none"
+                className="w-full rounded-xl border border-slate-800 bg-slate-950/80 px-3 py-2 text-sm text-white/80 outline-none focus:border-blue-500/50"
               >
                 <option value="KZ">Казахстан (KZ)</option>
                 <option value="RU">Россия (RU)</option>
@@ -128,13 +128,13 @@ export default function Settings() {
             </div>
           </Card>
 
-          <Card className="p-4 bg-white/[0.02] border-white/5">
+          <Card className="p-4 bg-slate-950/40 border border-slate-800/60">
             <div className="text-xs text-white/45">{t('settings.interface.language.title')}</div>
             <div className="mt-3">
               <select
                 value={i18n.language}
                 onChange={(e) => i18n.changeLanguage(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white/80 outline-none"
+                className="w-full rounded-xl border border-slate-800 bg-slate-950/80 px-3 py-2 text-sm text-white/80 outline-none focus:border-blue-500/50"
               >
                 <option value="ru">Русский</option>
                 <option value="en">English</option>
@@ -146,16 +146,16 @@ export default function Settings() {
       </Panel>
 
       {!window.Telegram?.WebApp?.initDataUnsafe?.user && (
-        <Panel className="p-6 bg-black/20 border-white/10">
+        <Panel className="p-6 border-slate-800">
           <div className="text-xs text-white/45 uppercase font-bold tracking-wider mb-4">{t('settings.data.title')}</div>
-          <Card className="p-4 bg-white/[0.02] border-white/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <Card className="p-4 bg-slate-950/40 border border-slate-800/60 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <div className="text-sm text-white/80 font-bold">{t('settings.data.clear_cache.title')}</div>
               <div className="text-xs text-white/50 mt-1">{t('settings.data.clear_cache.desc')}</div>
             </div>
             <Button
               onClick={() => void handleClearCacheAndLogout()}
-              className="shrink-0 bg-red-500/20 text-red-300 hover:bg-red-500/35"
+              className="shrink-0 bg-red-500/20 text-red-300 hover:bg-red-500/35 border-slate-800"
               disabled={isLoggingOut}
             >
               {isLoggingOut ? t('settings.data.clear_cache.loading') : t('settings.data.clear_cache.button')}
