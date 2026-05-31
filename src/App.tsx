@@ -149,7 +149,15 @@ function AppContent() {
 
       // If they are in guest mode or Telegram user, keep them active when not authed in Firebase
       const currentState = useUserStore.getState();
-      if (currentState.isGuest || currentState.user?.provider === "Telegram") {
+      if (currentState.user?.provider === "Telegram") {
+        const uid = currentState.user.uid;
+        const cloudData = await getUserDataFromDb(uid);
+        if (cloudData !== null) {
+          setCloudData(cloudData);
+        }
+        return;
+      }
+      if (currentState.isGuest) {
         return;
       }
 
