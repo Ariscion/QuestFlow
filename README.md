@@ -1,4 +1,4 @@
-# 🎮 QuestFlow
+# 🎮 VELO
 
 > A modern game deal aggregator with multi-region support, PWA capabilities, and Telegram integration.
 
@@ -9,7 +9,7 @@
 
 ## 🎯 Overview
 
-QuestFlow helps gamers find the best deals across multiple digital stores. It features dynamic currency conversion based on user location and integrates seamlessly with Telegram as a Mini App.
+VELO helps gamers find the best deals across multiple digital stores. It features dynamic currency conversion based on user location and integrates seamlessly with Telegram as a Mini App.
 
 ## ✨ Key Features
 
@@ -55,15 +55,15 @@ QuestFlow helps gamers find the best deals across multiple digital stores. It fe
 *   npm or yarn
 
 ### Installation
-1. Clone the repo: `git clone https://github.com/Ariscion/QuestFlow.git`
+1. Clone the repo: `git clone https://github.com/Ariscion/VELO.git`
 2. Install dependencies: `npm install`
 3. Copy `.env.example` to `.env` and fill in the values.
 4. Run dev server: `npm run dev`
 
 ## 🔗 Links
 
-👉 [QuestFlow Web App](https://questflow-app.web.app)
+👉 [VELO Web App](https://velo-app.web.app)
 
-👉 [QuestFlow Telegram Bot](https://t.me/quflow_bot)
+👉 [VELO Telegram Bot](https://t.me/quflow_bot)
 
 ---

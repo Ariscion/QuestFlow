@@ -72,7 +72,7 @@ async function checkDiscounts() {
             const message = `🔥 *Скидка на игру из вашего избранного!*\n\n` +
                             `👾 *${game.title}*\n` +
                             `💰 Текущая лучшая цена: $${bestPrice} (Скидка ${savings}%)\n\n` +
-                            `Откройте QuestFlow, чтобы посмотреть где купить!`;
+                            `Откройте VELO, чтобы посмотреть где купить!`;
             
             await sendTelegramMessage(telegramId, message);
           }

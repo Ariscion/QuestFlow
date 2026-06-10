@@ -145,9 +145,9 @@ export default function AuthOnboarding() {
 
         <div className="relative z-10 flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center border border-blue-500/30">
-                <span className="text-2xl font-black text-white drop-shadow-md">Q</span>
+                <span className="text-2xl font-black text-white drop-shadow-md">V</span>
             </div>
-            <span className="text-3xl font-black tracking-tight text-white drop-shadow-lg">QuestFlow</span>
+            <span className="text-3xl font-black tracking-tight text-white drop-shadow-lg">VELO</span>
         </div>
 
         <div className="relative z-10 max-w-lg">
@@ -186,9 +186,9 @@ export default function AuthOnboarding() {
         {/* Mobile Header */}
         <div className="md:hidden flex items-center gap-3 mb-10 mt-6">
             <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center">
-                <span className="text-xl font-black text-white">Q</span>
+                <span className="text-xl font-black text-white">V</span>
             </div>
-            <span className="text-2xl font-black tracking-tight text-white">QuestFlow</span>
+            <span className="text-2xl font-black tracking-tight text-white">VELO</span>
         </div>
 
         <div className="w-full max-w-[400px] animate-in fade-in slide-in-from-bottom-8 duration-700 ease-out">

@@ -49,7 +49,7 @@ export default function LanguageModal() {
               Язык / Language / Тіл
             </h2>
             <div className="text-blue-400 font-bold text-sm tracking-widest uppercase">
-              QuestFlow
+              VELO
             </div>
           </div>
         </div>

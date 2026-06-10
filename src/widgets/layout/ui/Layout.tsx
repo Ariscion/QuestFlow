@@ -88,7 +88,7 @@ export default function Layout() {
                         />
                     ) : (
                         <div className="hidden sm:flex w-12 h-12 shrink-0 rounded-[16px] border border-slate-800 bg-slate-950 items-center justify-center text-white/90 font-bold">
-                            QF
+                            VL
                         </div>
                     )}
 

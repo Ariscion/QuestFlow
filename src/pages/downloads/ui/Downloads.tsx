@@ -71,7 +71,7 @@ export default function Downloads() {
                     </div>
 
                     <h1 className="text-4xl md:text-6xl font-black tracking-tight mb-4 bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-                        QuestFlow Desktop
+                        VELO Desktop
                     </h1>
 
                     <p className="text-white/65 text-base md:text-lg leading-relaxed max-w-2xl mx-auto mb-8">

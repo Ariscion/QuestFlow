@@ -269,7 +269,7 @@ export const useUserStore = create<UserState>()(
         };
         },
         {
-            name: "questflow-user-storage",
+            name: "velo-user-storage",
             storage: createJSONStorage(() => localStorage),
         }
     )

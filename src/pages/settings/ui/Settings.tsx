@@ -43,7 +43,7 @@ export default function Settings() {
     } finally {
       localStorage.removeItem("qf_search_cache_v2");
       localStorage.removeItem("qf_analytics_logs");
-      localStorage.removeItem("questflow-user-storage");
+      localStorage.removeItem("velo-user-storage");
       reset();
       signOut();
       nav("/auth", { replace: true });

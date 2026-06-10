@@ -38,7 +38,7 @@ export type AppActions = {
 export const useAppStore = create<AppState & AppActions>((set) => ({
   tier: "Free",
   motionEnabled: true,
-  installLocation: "D:\\Games\\QuestFlow Library",
+  installLocation: "D:\\Games\\VELO Library",
   folders: [
     { id: "steam", path: "D:\\SteamLibrary", enabled: true },
     { id: "eg", path: "E:\\Games", enabled: true },

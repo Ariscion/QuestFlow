@@ -17,7 +17,7 @@
     "search_games": "Search games"
   },
   "help": {
-    "title": "QuestFlow Help & Ethics",
+    "title": "VELO Help & Ethics",
     "xp": {
       "title": "Experience System (XP)",
       "desc1": "The experience system (XP) is a tool to visualize your progress as a conscious buyer. Points do not give in-game advantages. Currently, XP is awarded only for two actions: going to the store and manually adding a game to the library.",
@@ -29,7 +29,7 @@
     },
     "ethics": {
       "title": "Responsible Development Code",
-      "subtitle": "We design QuestFlow based on four principles:",
+      "subtitle": "We design VELO based on four principles:",
       "p1": "Transparency: No hidden advertising algorithms. Only objective data.",
       "p2": "Data Minimization: We collect only technical IDs necessary for operation.",
       "p3": "Conscious Choice: Gamification is an option that can be ignored.",
@@ -94,7 +94,7 @@
       "synced": "Synced"
     },
     "profile": {
-      "default_name": "QuestFlow User",
+      "default_name": "VELO User",
       "role": "Deal Hunter"
     },
     "stats": {
@@ -135,7 +135,7 @@
       "desc": "Your authority is growing. {{xp}} XP left until the next level. Keep building your library!"
     },
     "welcome": {
-      "title": "Welcome to QuestFlow!",
+      "title": "Welcome to VELO!",
       "time": "System",
       "desc": "You have successfully logged into the system. Now your library and level are securely saved in the cloud."
     },
@@ -157,7 +157,7 @@
       "ready": "Ready to install"
     },
     "hero": {
-      "desc": "Get the maximum: auto-updates, background downloading, and game overlay in our native client. Install QuestFlow right now.",
+      "desc": "Get the maximum: auto-updates, background downloading, and game overlay in our native client. Install VELO right now.",
       "browser_support": "Automatic installation is supported in Chromium-based browsers (Chrome, Edge, Yandex, Opera)."
     },
     "button": {
@@ -184,7 +184,7 @@
   },
   "home": {
     "title_prefix": "Hot Deals",
-    "title_suffix": "QuestFlow",
+    "title_suffix": "VELO",
     "status": {
       "updating": "Updating...",
       "online": "API Online",
@@ -269,7 +269,7 @@
   "changelog": {
     "title": "Update",
     "subtitle": "Version {{version}}",
-    "desc": "We have seriously upgraded QuestFlow! Here is what's new:",
+    "desc": "We have seriously upgraded VELO! Here is what's new:",
     "items": [
       "Fixed display of Steam regional prices on hosting.",
       "Added option to manually select region in settings for accurate price calculation.",
@@ -331,7 +331,7 @@
       "desc": "You need {{xp}} XP to the next level."
     },
     "welcome": {
-      "title": "Welcome to QuestFlow!",
+      "title": "Welcome to VELO!",
       "time": "At registration",
       "desc": "Explore the best discounts on games!"
     },

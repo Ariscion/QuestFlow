@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { CheapSharkApi } from "@/shared/api/cheapSharkApi";
 import { useUserStore } from "@/entities/user/model/userStore";
 
 export interface AppDeal {

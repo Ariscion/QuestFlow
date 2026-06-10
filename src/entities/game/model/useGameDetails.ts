@@ -38,6 +38,11 @@ export interface SteamScreenshot {
     path_thumbnail: string;
 }
 
+export interface SteamMetacritic {
+    score: number;
+    url: string;
+}
+
 export interface SteamAppDetails {
     short_description?: string;
     background?: string;
@@ -51,6 +56,7 @@ export interface SteamAppDetails {
         initial_formatted: string;
         final_formatted: string;
     };
+    metacritic?: SteamMetacritic;
 }
 
 export interface SteamAppDetailsResult {
