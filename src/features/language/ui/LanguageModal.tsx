@@ -9,7 +9,7 @@ export default function LanguageModal() {
   const { addToast } = useToastStore();
 
   useEffect(() => {
-    const isChecked = localStorage.getItem("qf_lang_check");
+    const isChecked = localStorage.getItem("vl_lang_check");
     if (!isChecked) {
       setIsOpen(true);
     }
@@ -17,7 +17,7 @@ export default function LanguageModal() {
 
   const handleSelect = (lang: string) => {
     i18n.changeLanguage(lang);
-    localStorage.setItem("qf_lang_check", "true");
+    localStorage.setItem("vl_lang_check", "true");
     localStorage.setItem("i18nextLng", lang);
     setIsOpen(false);
     

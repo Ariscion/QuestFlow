@@ -16,8 +16,8 @@ export default function ChangelogModal() {
   useEffect(() => {
     // Ждем секунду после загрузки, чтобы не пугать юзера сразу
     const timer = setTimeout(() => {
-      const langChecked = localStorage.getItem("qf_lang_check");
-      const savedVersion = localStorage.getItem("qf_app_version");
+      const langChecked = localStorage.getItem("vl_lang_check");
+      const savedVersion = localStorage.getItem("vl_app_version");
       if (langChecked === "true" && savedVersion !== CURRENT_APP_VERSION && (isAuthed || isGuest)) {
         setIsOpen(true);
       }
@@ -27,7 +27,7 @@ export default function ChangelogModal() {
   }, [isAuthed, isGuest]);
 
   const handleClose = () => {
-    localStorage.setItem("qf_app_version", CURRENT_APP_VERSION);
+    localStorage.setItem("vl_app_version", CURRENT_APP_VERSION);
     setIsOpen(false);
   };
 

@@ -11,7 +11,7 @@ interface AnalyticsEvent {
     data?: AnalyticsPayload;
 }
 
-const ANALYTICS_STORAGE_KEY = "qf_analytics_logs";
+const ANALYTICS_STORAGE_KEY = "vl_analytics_logs";
 
 function getStoredAnalyticsLogs(): AnalyticsEvent[] {
     try {

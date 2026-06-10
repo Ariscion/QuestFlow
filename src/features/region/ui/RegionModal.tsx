@@ -10,9 +10,9 @@ export default function RegionModal() {
 
   useEffect(() => {
     // Проверяем, был ли уже выбран язык
-    const langChecked = localStorage.getItem("qf_lang_check");
+    const langChecked = localStorage.getItem("vl_lang_check");
     // Проверяем, был ли уже выбран регион
-    const isChecked = localStorage.getItem("qf_currency_check");
+    const isChecked = localStorage.getItem("vl_currency_check");
     
     if (langChecked === "true" && !isChecked && (isAuthed || isGuest)) {
       setIsOpen(true);
@@ -30,7 +30,7 @@ export default function RegionModal() {
       setCurrencyInfo({ code: "USD", symbol: "$", rateToUSD: 1, countryCode });
     }
     
-    localStorage.setItem("qf_currency_check", "true");
+    localStorage.setItem("vl_currency_check", "true");
     setIsOpen(false);
   };
 

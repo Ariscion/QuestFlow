@@ -29,7 +29,7 @@ export default function Settings() {
     } else {
       setCurrencyInfo({ code: "USD", symbol: "$", rateToUSD: 1, countryCode });
     }
-    localStorage.setItem("qf_currency_check", "true");
+    localStorage.setItem("vl_currency_check", "true");
   };
 
   const handleClearCacheAndLogout = async () => {
@@ -41,8 +41,8 @@ export default function Settings() {
     } catch (error) {
       console.error("Logout failed:", error);
     } finally {
-      localStorage.removeItem("qf_search_cache_v2");
-      localStorage.removeItem("qf_analytics_logs");
+      localStorage.removeItem("vl_search_cache_v2");
+      localStorage.removeItem("vl_analytics_logs");
       localStorage.removeItem("velo-user-storage");
       reset();
       signOut();
@@ -67,7 +67,7 @@ export default function Settings() {
               />
             ) : (
               <div className="w-16 h-16 shrink-0 rounded-[18px] border border-slate-800 bg-slate-950 flex items-center justify-center text-white/90 font-bold">
-                QF
+                VL
               </div>
             )}
 

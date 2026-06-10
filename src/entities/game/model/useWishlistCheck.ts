@@ -12,7 +12,7 @@ export function useWishlistCheck() {
     useEffect(() => {
         if (!wishlist || wishlist.length === 0) return;
         
-        const lastCheck = localStorage.getItem('qf_last_wishlist_check');
+        const lastCheck = localStorage.getItem('vl_last_wishlist_check');
         const now = Date.now();
         
         // Проверяем раз в сутки (24 часа)
@@ -63,7 +63,7 @@ export function useWishlistCheck() {
                     });
                 }
                 
-                localStorage.setItem('qf_last_wishlist_check', now.toString());
+                localStorage.setItem('vl_last_wishlist_check', now.toString());
             } catch (err) {
                 console.error("Ошибка при проверке избранного:", err);
             }
