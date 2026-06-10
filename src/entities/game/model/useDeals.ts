@@ -19,9 +19,12 @@ export function useDeals(searchQuery: string) {
     const normalizedQuery = searchQuery.toLowerCase().trim();
     const rateToUSD = useUserStore((s) => s.currencyInfo.rateToUSD);
     const symbol = useUserStore((s) => s.currencyInfo.symbol);
+    const countryCode = useUserStore((s) => s.currencyInfo.countryCode);
+    const currencyRates = useUserStore((s) => s.currencyRates);
+    const localCurrencyCode = useUserStore((s) => s.currencyInfo.code);
 
     return useQuery({
-        queryKey: ["deals", normalizedQuery],
+        queryKey: ["deals", normalizedQuery, countryCode],
         queryFn: async () => {
             if (!normalizedQuery) return [];
             try {
@@ -38,7 +41,7 @@ export function useDeals(searchQuery: string) {
                     }
                 }
                 
-                return Array.from(uniqueGamesMap.values()).map(deal => ({
+                const uniqueGames = Array.from(uniqueGamesMap.values()).map(deal => ({
                     gameID: deal.gameID,
                     external: deal.title,
                     thumb: deal.thumb,
@@ -48,25 +51,85 @@ export function useDeals(searchQuery: string) {
                     steamRatingText: deal.steamRatingText && deal.steamRatingPercent !== "0" ? deal.steamRatingText : undefined,
                     steamRatingCount: deal.steamRatingCount && deal.steamRatingPercent !== "0" ? deal.steamRatingCount : undefined,
                     metacriticScore: deal.metacriticScore && deal.metacriticScore !== "0" ? deal.metacriticScore : undefined,
+                    steamPriceOverview: null as any,
                 }));
+
+                const steamAppIDs = uniqueGames
+                    .map(g => g.steamAppID)
+                    .filter((id): id is string => Boolean(id));
+
+                if (steamAppIDs.length > 0) {
+                    try {
+                        const ccParam = countryCode ? `&cc=${countryCode.toLowerCase()}` : "";
+                        const steamUrl = `https://store.steampowered.com/api/appdetails?appids=${steamAppIDs.join(",")}&filters=price_overview${ccParam}`;
+                        const localPath = `/api/steam/appdetails?appids=${steamAppIDs.join(",")}&filters=price_overview${ccParam}`;
+
+                        const isLocal = () =>
+                            window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+                        const proxyUrl = isLocal() 
+                            ? localPath 
+                            : `${import.meta.env.VITE_STEAM_CORS_PROXY || "https://steam-proxy.malikdjurabaev.workers.dev"}/?url=${encodeURIComponent(steamUrl)}`;
+
+                        const steamRes = await fetch(proxyUrl);
+                        if (steamRes.ok) {
+                            const steamData = await steamRes.json();
+                            for (const game of uniqueGames) {
+                                if (game.steamAppID && steamData[game.steamAppID]?.success) {
+                                    game.steamPriceOverview = steamData[game.steamAppID].data?.price_overview || null;
+                                }
+                            }
+                        }
+                    } catch (steamErr) {
+                        console.error("Failed to fetch Steam regional prices in batch:", steamErr);
+                    }
+                }
+                
+                return uniqueGames;
             } catch (error) {
                 console.error("Failed to fetch search deals:", error);
                 return [];
             }
         },
-        select: (data) => data.map(game => ({
-            id: game.gameID,
-            title: game.external,
-            thumb: game.thumb,
-            steamAppID: game.steamAppID,
-            bestPriceUSD: game.cheapest,
-            bestPriceLocal: Math.round(parseFloat(game.cheapest) * rateToUSD),
-            currency: symbol || 'USD',
-            steamRatingPercent: game.steamRatingPercent,
-            steamRatingText: game.steamRatingText,
-            steamRatingCount: game.steamRatingCount,
-            metacriticScore: game.metacriticScore,
-        })),
+        select: (data) => data.map(game => {
+            const cheapestUSD = parseFloat(game.cheapest);
+            let bestPriceLocal = Math.round(cheapestUSD * rateToUSD);
+            let bestPriceUSD = game.cheapest;
+
+            // Compare with Steam regional price if available
+            if (game.steamPriceOverview) {
+                const steamCurrency = game.steamPriceOverview.currency.toUpperCase();
+                const steamPriceVal = game.steamPriceOverview.final / 100;
+
+                let steamPriceLocal: number;
+                if (steamCurrency === localCurrencyCode) {
+                    steamPriceLocal = steamPriceVal;
+                } else {
+                    const steamRateToUSD = currencyRates[steamCurrency] || 1;
+                    const priceInUSD = steamPriceVal / steamRateToUSD;
+                    steamPriceLocal = Math.round(priceInUSD * rateToUSD);
+                }
+
+                if (steamPriceLocal < bestPriceLocal) {
+                    bestPriceLocal = Math.round(steamPriceLocal);
+                    const localRateToUSD = rateToUSD || 1;
+                    bestPriceUSD = (steamPriceLocal / localRateToUSD).toFixed(2);
+                }
+            }
+
+            return {
+                id: game.gameID,
+                title: game.external,
+                thumb: game.thumb,
+                steamAppID: game.steamAppID,
+                bestPriceUSD: bestPriceUSD,
+                bestPriceLocal: bestPriceLocal,
+                currency: symbol || 'USD',
+                steamRatingPercent: game.steamRatingPercent,
+                steamRatingText: game.steamRatingText,
+                steamRatingCount: game.steamRatingCount,
+                metacriticScore: game.metacriticScore,
+            };
+        }),
         enabled: Boolean(normalizedQuery),
         staleTime: 1000 * 60 * 15,
     });
