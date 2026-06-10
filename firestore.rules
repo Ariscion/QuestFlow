@@ -2,9 +2,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /users/{userId} {
-      allow read: if (request.auth != null && request.auth.uid == userId) || userId.matches('^tg_.*');
-      allow write: if ((request.auth != null && request.auth.uid == userId) || userId.matches('^tg_.*'))
-                   && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['userXP', 'userLevel']) || !resource.data.keys().hasAll(['userXP', 'userLevel']));
+      allow read, write: if (request.auth != null && request.auth.uid == userId) || userId.matches('^tg_.*');
                    
       // Price alerts sub-collection: same owner-only isolation
       match /priceAlerts/{gameId} {

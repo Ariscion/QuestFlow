@@ -27,3 +27,4 @@ dist-ssr
 dev-dist/
 .env
 full_project_dump.txt
+.firebase/
