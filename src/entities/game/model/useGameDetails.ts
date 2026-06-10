@@ -1,6 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { useUserStore } from "@/entities/user/model/userStore";
 import { CheapSharkApi } from "@/shared/api/cheapSharkApi";
+
+/** Maps i18n locale codes to Steam API language names.
+ *  Steam doesn't have a Kazakh translation, so 'kk' falls back to English. */
+const STEAM_LANG_MAP: Record<string, string> = {
+    ru: "russian",
+    en: "english",
+    kk: "english", // Steam has no Kazakh — fallback to English
+};
+
+const toSteamLang = (locale: string): string =>
+    STEAM_LANG_MAP[locale] ?? "english";
 
 export interface CheapSharkGameDeal {
     dealID: string;
@@ -89,6 +101,8 @@ const proxySteam = (steamUrl: string, localPath: string): string =>
 
 export function useGameDetails(id: string | undefined) {
     const { countryCode } = useUserStore((s) => s.currencyInfo);
+    const { i18n } = useTranslation();
+    const steamLang = toSteamLang(i18n.language);
 
     const csQuery = useQuery({
         queryKey: ["cheapSharkGame", id],
@@ -103,12 +117,12 @@ export function useGameDetails(id: string | undefined) {
     const steamAppID = csQuery.data?.info?.steamAppID;
 
     const steamQuery = useQuery({
-        queryKey: ["steamDetails", steamAppID, countryCode],
+        queryKey: ["steamDetails", steamAppID, countryCode, steamLang],
         queryFn: async () => {
             try {
                 const ccParam = countryCode ? `&cc=${countryCode.toLowerCase()}` : "";
-                const steamUrl = `https://store.steampowered.com/api/appdetails?appids=${steamAppID}&l=russian${ccParam}`;
-                const localPath = `${STEAM_LOCAL_BASE}/appdetails?appids=${steamAppID}&l=russian${ccParam}`;
+                const steamUrl = `https://store.steampowered.com/api/appdetails?appids=${steamAppID}&l=${steamLang}${ccParam}`;
+                const localPath = `${STEAM_LOCAL_BASE}/appdetails?appids=${steamAppID}&l=${steamLang}${ccParam}`;
 
                 const res = await fetch(proxySteam(steamUrl, localPath));
                 if (!res.ok) throw new Error(`Steam appdetails failed: ${res.status}`);
