@@ -226,62 +226,90 @@ export default function Game() {
                 <span>{t('game.warning')}</span>
               </div>
               <div className="flex flex-col gap-3">
-                {/* Only show verified stores from STORE_NAMES */}
-                {(csGame.deals && csGame.deals.length > 0) ? (
-                  csGame.deals
+                {(csGame.deals && csGame.deals.length > 0) ? (() => {
+                  // --- Build enriched deal list ---
+                  const enrichedDeals = csGame.deals
                     .filter((deal: GamePageDeal) => Boolean(STORE_NAMES[deal.storeID]))
-                    .map((deal: GamePageDeal, idx: number) => {
-                      let storeName = STORE_NAMES[deal.storeID];
+                    .map((deal: GamePageDeal) => {
+                      const storeName = STORE_NAMES[deal.storeID];
                       let discountPercent = Math.round(parseFloat(deal.savings));
                       let isDiscount = discountPercent > 0;
-
-                      // Steam: if we have regional data from Steam API, prefer it
                       let priceDisplay = `${deal.price} USD`;
                       let originalDisplay = `${deal.retailPrice} USD`;
                       let convertedPrice = "";
                       let convertedOriginal = "";
 
+                      // Numeric price in local currency for sorting (lower = better)
+                      let sortPrice: number;
+
                       if (storeName === "Steam" && steamDetails?.price_overview) {
+                        // Use Steam regional price (already in local currency)
                         priceDisplay = steamDetails.price_overview.final_formatted;
                         originalDisplay = steamDetails.price_overview.initial_formatted;
                         discountPercent = steamDetails.price_overview.discount_percent;
                         isDiscount = discountPercent > 0;
+                        // Steam returns price in minor units (kopecks/cents), convert to major
+                        sortPrice = steamDetails.price_overview.final / 100;
                       } else if (currencyInfo.code !== "USD") {
                         const localPrice = Math.round(parseFloat(deal.price) * currencyInfo.rateToUSD);
                         const localRetail = Math.round(parseFloat(deal.retailPrice) * currencyInfo.rateToUSD);
-                        
-                        if (storeName === "Steam") {
-                          priceDisplay = `${localPrice} ${currencyInfo.symbol}`;
-                          originalDisplay = `${localRetail} ${currencyInfo.symbol}`;
-                        } else {
-                          convertedPrice = `(~${localPrice} ${currencyInfo.symbol})`;
-                          convertedOriginal = `(~${localRetail} ${currencyInfo.symbol})`;
-                        }
+                        convertedPrice = `(~${localPrice} ${currencyInfo.symbol})`;
+                        convertedOriginal = `(~${localRetail} ${currencyInfo.symbol})`;
+                        sortPrice = localPrice;
+                      } else {
+                        sortPrice = parseFloat(deal.price);
                       }
 
-                      return (
-                        <div key={`${deal.storeID}-${idx}`} className="p-3 flex flex-col gap-3 rounded-xl bg-slate-950/40 hover:bg-slate-850 transition-colors border border-slate-800/60 group">
-                          <div className="flex justify-between items-center gap-4">
-                            <div className="min-w-0 flex-1">
+                      return { deal, storeName, discountPercent, isDiscount, priceDisplay, originalDisplay, convertedPrice, convertedOriginal, sortPrice };
+                    });
+
+                  // Sort: cheapest first
+                  enrichedDeals.sort((a, b) => a.sortPrice - b.sortPrice);
+                  const bestPrice = enrichedDeals[0]?.sortPrice ?? Infinity;
+
+                  return enrichedDeals.map(({ deal, storeName, discountPercent, isDiscount, priceDisplay, originalDisplay, convertedPrice, convertedOriginal, sortPrice }, idx) => {
+                    const isBest = sortPrice === bestPrice;
+                    return (
+                      <div
+                        key={`${deal.storeID}-${idx}`}
+                        className={`p-3 flex flex-col gap-3 rounded-xl transition-colors border group ${
+                          isBest
+                            ? "bg-emerald-950/20 border-emerald-500/30 hover:bg-emerald-950/30"
+                            : "bg-slate-950/40 border-slate-800/60 hover:bg-slate-850"
+                        }`}
+                      >
+                        <div className="flex justify-between items-center gap-4">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2">
                               <div className="text-sm font-bold text-white/90">{storeName}</div>
-                              <div className="flex flex-col gap-0.5 mt-1">
-                                {isDiscount && (
-                                  <div className="flex items-baseline gap-1">
-                                    <span className="text-xs text-white/40 line-through">{originalDisplay}</span>
-                                    {convertedOriginal && <span className="text-[10px] text-white/30 line-through">{convertedOriginal}</span>}
-                                    <span className="text-xs font-bold text-red-400 ml-1.5">-{discountPercent}%</span>
-                                  </div>
-                                )}
-                                <div className="flex items-baseline gap-1 flex-wrap">
-                                  <span className="text-lg font-black text-emerald-400">{priceDisplay}</span>
-                                  {convertedPrice && <span className="text-xs font-medium text-emerald-400/70 ml-1">{convertedPrice}</span>}
+                              {isBest && (
+                                <span className="text-[10px] font-black text-emerald-400 bg-emerald-500/15 border border-emerald-500/30 px-1.5 py-0.5 rounded-full uppercase tracking-wide">
+                                  🏆 {t('game.best_price')}
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex flex-col gap-0.5 mt-1">
+                              {isDiscount && (
+                                <div className="flex items-baseline gap-1">
+                                  <span className="text-xs text-white/40 line-through">{originalDisplay}</span>
+                                  {convertedOriginal && <span className="text-[10px] text-white/30 line-through">{convertedOriginal}</span>}
+                                  <span className="text-xs font-bold text-red-400 ml-1.5">-{discountPercent}%</span>
                                 </div>
+                              )}
+                              <div className="flex items-baseline gap-1 flex-wrap">
+                                <span className={`text-lg font-black ${isBest ? "text-emerald-300" : "text-emerald-400"}`}>{priceDisplay}</span>
+                                {convertedPrice && <span className="text-xs font-medium text-emerald-400/70 ml-1">{convertedPrice}</span>}
                               </div>
                             </div>
+                          </div>
                           <button
                             type="button"
                             onClick={() => handleStoreClick(deal)}
-                            className="px-4 py-2 text-sm font-bold bg-slate-800 hover:bg-blue-600 text-white border border-slate-700/50 hover:border-blue-500/30 rounded-lg transition-all shrink-0"
+                            className={`px-4 py-2 text-sm font-bold text-white border rounded-lg transition-all shrink-0 ${
+                              isBest
+                                ? "bg-emerald-700 hover:bg-emerald-600 border-emerald-600/50"
+                                : "bg-slate-800 hover:bg-blue-600 border-slate-700/50 hover:border-blue-500/30"
+                            }`}
                           >
                             {t('game.open')}
                           </button>
@@ -297,8 +325,8 @@ export default function Game() {
                         )}
                       </div>
                     );
-                  })
-                ) : (
+                  });
+                })() : (
                   <div className="text-center py-6 text-white/40">
                     <div className="text-2xl mb-2">📄</div>
                     <div className="text-sm">{t('game.no_active_deals')}</div>
