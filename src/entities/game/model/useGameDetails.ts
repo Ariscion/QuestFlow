@@ -76,7 +76,16 @@ export interface SteamReviewsSummary {
 }
 
 // Vite dev-server proxies /api/steam -> https://store.steampowered.com/api
-const STEAM_BASE = import.meta.env.VITE_STEAM_PROXY_URL || "/api/steam";
+const STEAM_LOCAL_BASE = "/api/steam";
+// Cloudflare Worker CORS proxy (production) — accepts ?url= parameter
+const STEAM_CF_PROXY = import.meta.env.VITE_STEAM_CORS_PROXY || "https://steam-proxy.malikdjurabaev.workers.dev";
+
+const isLocal = () =>
+    window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+
+/** Build a proxied URL: local = Vite proxy path, prod = Cloudflare Worker */
+const proxySteam = (steamUrl: string, localPath: string): string =>
+    isLocal() ? localPath : `${STEAM_CF_PROXY}/?url=${encodeURIComponent(steamUrl)}`;
 
 export function useGameDetails(id: string | undefined) {
     const { countryCode } = useUserStore((s) => s.currencyInfo);
@@ -97,26 +106,14 @@ export function useGameDetails(id: string | undefined) {
         queryKey: ["steamDetails", steamAppID, countryCode],
         queryFn: async () => {
             try {
-                const ccParam = countryCode ? `&cc=${countryCode.toLowerCase()}` : '';
+                const ccParam = countryCode ? `&cc=${countryCode.toLowerCase()}` : "";
                 const steamUrl = `https://store.steampowered.com/api/appdetails?appids=${steamAppID}&l=russian${ccParam}`;
-                
-                // Проверяем, где мы запущены. На проде (Firebase) прокси Vite не работает.
-                // Так как функции требуют Blaze плана, используем публичный CORS прокси Codetabs
-                const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-                
-                if (isLocal) {
-                    const res = await fetch(`${STEAM_BASE}/appdetails?appids=${steamAppID}&l=russian${ccParam}`);
-                    if (!res.ok) throw new Error("Steam response was not ok");
-                    const data = await res.json() as SteamAppDetailsResponse;
-                    return data[steamAppID as string]?.success ? data[steamAppID as string].data : null;
-                } else {
-                    // Codetabs требует полной кодировки URL, чтобы передать все параметры (включая cc)
-                    const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(steamUrl)}`;
-                    const proxyRes = await fetch(proxyUrl);
-                    if (!proxyRes.ok) throw new Error("Proxy response was not ok");
-                    const data = await proxyRes.json() as SteamAppDetailsResponse;
-                    return data[steamAppID as string]?.success ? data[steamAppID as string].data : null;
-                }
+                const localPath = `${STEAM_LOCAL_BASE}/appdetails?appids=${steamAppID}&l=russian${ccParam}`;
+
+                const res = await fetch(proxySteam(steamUrl, localPath));
+                if (!res.ok) throw new Error(`Steam appdetails failed: ${res.status}`);
+                const data = await res.json() as SteamAppDetailsResponse;
+                return data[steamAppID as string]?.success ? data[steamAppID as string].data : null;
             } catch (error) {
                 console.error("Ошибка при получении данных из Steam:", error);
                 return null;
@@ -130,21 +127,13 @@ export function useGameDetails(id: string | undefined) {
         queryKey: ["steamReviews", steamAppID],
         queryFn: async () => {
             try {
-                const steamReviewsUrl = `https://store.steampowered.com/appreviews/${steamAppID}?json=1`;
-                const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-                
-                if (isLocal) {
-                    const res = await fetch(`/api/steam-reviews/${steamAppID}?json=1`);
-                    if (!res.ok) throw new Error("Steam reviews response was not ok");
-                    const data = await res.json();
-                    return data?.success ? (data.query_summary as SteamReviewsSummary) : null;
-                } else {
-                    const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(steamReviewsUrl)}`;
-                    const proxyRes = await fetch(proxyUrl);
-                    if (!proxyRes.ok) throw new Error("Proxy response was not ok");
-                    const data = await proxyRes.json();
-                    return data?.success ? (data.query_summary as SteamReviewsSummary) : null;
-                }
+                const steamUrl = `https://store.steampowered.com/appreviews/${steamAppID}?json=1`;
+                const localPath = `/api/steam-reviews/${steamAppID}?json=1`;
+
+                const res = await fetch(proxySteam(steamUrl, localPath));
+                if (!res.ok) throw new Error(`Steam reviews failed: ${res.status}`);
+                const data = await res.json();
+                return data?.success ? (data.query_summary as SteamReviewsSummary) : null;
             } catch (error) {
                 console.error("Ошибка при получении отзывов из Steam:", error);
                 return null;
